@@ -461,10 +461,11 @@ STRICT GUIDELINES:
       break;
     }
 
-    // 1. Record assistant turn with functionCalls
+    // 1. Record assistant turn with functionCalls and rawParts to preserve thoughtSignature
     messages.push({
       role: "assistant",
       content: turn.text || "",
+      rawParts: turn.rawParts,
       toolCalls: turn.toolCalls,
     });
 

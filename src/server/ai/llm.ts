@@ -8,8 +8,9 @@ export interface ChatTurn {
   content?: string;
   toolCallId?: string;
   toolName?: string;
-  toolCalls?: { id: string; name: string; args: unknown }[];
+  toolCalls?: { id: string; name: string; args: unknown; rawPart?: any }[];
   toolResponses?: { toolName: string; content: string }[];
+  rawParts?: any[];
 }
 
 export interface ToolDeclaration {
@@ -30,7 +31,7 @@ export interface Llm {
     system: string;
     messages: ChatTurn[];
     tools: ToolDeclaration[];
-  }): Promise<{ text?: string; toolCalls: { id: string; name: string; args: unknown }[] }>;
+  }): Promise<{ text?: string; toolCalls: { id: string; name: string; args: unknown; rawPart?: any }[]; rawParts?: any[] }>;
 
   embed(texts: string[], kind: "document" | "query"): Promise<number[][]>;
 }
@@ -184,22 +185,31 @@ class GeminiLlm implements Llm {
       const rawContents: any[] = [];
       for (const m of opts.messages) {
         if (m.role === "assistant") {
-          const parts: any[] = [];
-          if (m.content && m.content.trim()) {
-            parts.push({ text: m.content });
-          }
-          if (m.toolCalls && m.toolCalls.length > 0) {
-            for (const tc of m.toolCalls) {
-              parts.push({
-                functionCall: {
-                  name: tc.name,
-                  args: (tc.args as Record<string, unknown>) || {},
-                },
-              });
+          if (m.rawParts && m.rawParts.length > 0) {
+            // CRITICAL: Preserve the model's exact candidate parts with thoughtSignature
+            rawContents.push({ role: "model", parts: m.rawParts });
+          } else {
+            const parts: any[] = [];
+            if (m.content && m.content.trim()) {
+              parts.push({ text: m.content });
             }
-          }
-          if (parts.length > 0) {
-            rawContents.push({ role: "model", parts });
+            if (m.toolCalls && m.toolCalls.length > 0) {
+              for (const tc of m.toolCalls) {
+                if (tc.rawPart) {
+                  parts.push(tc.rawPart);
+                } else {
+                  parts.push({
+                    functionCall: {
+                      name: tc.name,
+                      args: (tc.args as Record<string, unknown>) || {},
+                    },
+                  });
+                }
+              }
+            }
+            if (parts.length > 0) {
+              rawContents.push({ role: "model", parts });
+            }
           }
         } else if (m.role === "tool" || m.toolResponses) {
           const parts: any[] = [];
@@ -259,7 +269,7 @@ class GeminiLlm implements Llm {
       const candidate = response.candidates?.[0];
       const parts = candidate?.content?.parts ?? [];
 
-      const toolCalls: { id: string; name: string; args: unknown }[] = [];
+      const toolCalls: { id: string; name: string; args: unknown; rawPart?: any }[] = [];
       let textContent = "";
 
       for (const part of parts) {
@@ -268,9 +278,10 @@ class GeminiLlm implements Llm {
         }
         if ("functionCall" in part && part.functionCall) {
           toolCalls.push({
-            id: `call_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            id: (part.functionCall as any).id || `call_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
             name: part.functionCall.name ?? "",
             args: part.functionCall.args ?? {},
+            rawPart: part,
           });
         }
       }
@@ -278,6 +289,7 @@ class GeminiLlm implements Llm {
       return {
         text: textContent || undefined,
         toolCalls,
+        rawParts: parts,
       };
     } catch (err: any) {
       console.error("Gemini chatWithTools error:", err);
