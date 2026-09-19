@@ -61,7 +61,7 @@ cp .env.example .env
 Key variables:
 - `DATABASE_URL`: MongoDB Atlas connection string (`mongodb+srv://<user>:<password>@cluster.mongodb.net/clubops_ai?retryWrites=true&w=majority`)
 - `GEMINI_API_KEY`: Google Gemini API key
-- `AI_MODEL`: `gemini-2.5-flash`
+- `AI_MODEL`: `gemini-3.6-flash`
 - `EMBEDDING_MODEL`: `text-embedding-004`
 - `APP_TIMEZONE`: `Asia/Kolkata`
 - `DEMO_MODE`: `true`

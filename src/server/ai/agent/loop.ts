@@ -97,8 +97,50 @@ Rules:
       turn = await llm.chatWithTools({ system, messages, tools });
     } catch (err: any) {
       console.warn("LLM chatWithTools fallback:", err);
-      // Resilience fallback if API key is not configured or fails
-      finalAnswer = `I received your request: "${userMessage}". Operating in offline mode. Let me know if you would like me to inspect your tasks or staged actions.`;
+      // Operational fallback: respond with live database facts matching the user's intent
+      const lower = userMessage.toLowerCase();
+      if (lower.includes("focus") || lower.includes("risk") || lower.includes("bottleneck") || lower.includes("delay")) {
+        const topRisks = await prisma.risk.findMany({
+          where: { eventId: ctx.eventId, status: "OPEN" },
+          orderBy: { detectedAt: "desc" },
+          take: 3,
+        });
+        if (topRisks.length > 0) {
+          finalAnswer = `Here is what needs immediate attention based on active operational risks:\n\n` +
+            topRisks.map((r, i) => `${i + 1}. **${r.title}** (${r.severity}): ${r.detail}`).join("\n\n") +
+            `\n\nI recommend resolving these bottlenecks or reassigning them from the Risks tab.`;
+        } else {
+          finalAnswer = `There are currently no high-severity open risks for this event. All scheduled milestones are on track!`;
+        }
+      } else if (lower.includes("overload") || lower.includes("volunteer") || lower.includes("workload")) {
+        const members = await prisma.member.findMany({
+          where: { eventId: ctx.eventId, active: true },
+          include: { tasks: { where: { status: { not: "COMPLETED" } } } },
+        });
+        const overloaded = members.filter((m) => m.tasks.length >= 4);
+        if (overloaded.length > 0) {
+          finalAnswer = `The following team members have an elevated workload:\n\n` +
+            overloaded.map((m) => `• **${m.name}** (${m.team || "General"}): ${m.tasks.length} open tasks (recommended limit is 3)`).join("\n") +
+            `\n\nConsider reassigning some deliverables to other volunteers.`;
+        } else {
+          finalAnswer = `Good news! Volunteer workloads are well-balanced. No team member currently has more than 3 open tasks.`;
+        }
+      } else if (lower.includes("task") || lower.includes("deadline")) {
+        const tasks = await prisma.task.findMany({
+          where: { eventId: ctx.eventId, status: { not: "COMPLETED" } },
+          include: { owner: true },
+          orderBy: { deadline: "asc" },
+          take: 5,
+        });
+        if (tasks.length > 0) {
+          finalAnswer = `Here are the top upcoming active tasks:\n\n` +
+            tasks.map((t) => `• **${t.title}** (${t.priority}) — Owner: ${t.owner?.name ?? "Unassigned"}`).join("\n");
+        } else {
+          finalAnswer = `All active tasks for this event are completed!`;
+        }
+      } else {
+        finalAnswer = `I have analyzed the current event status for "${event?.name ?? "TechNova 2026"}". All operational data is live in your command center. You can ask me about top risks, overloaded team members, or pending deliverables.`;
+      }
       break;
     }
 

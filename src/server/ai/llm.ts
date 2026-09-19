@@ -58,6 +58,50 @@ class GeminiLlm implements Llm {
     }
   }
 
+  private async executeWithRetryAndFallback<R>(
+    operationName: string,
+    action: (modelName: string) => Promise<R>
+  ): Promise<R> {
+    const candidateModels = [
+      env.AI_MODEL,
+      "gemini-flash-latest",
+      "gemini-3.6-flash",
+      "gemini-3.5-flash",
+    ].filter((m, i, arr) => arr.indexOf(m) === i && Boolean(m));
+
+    let lastError: any;
+
+    for (const model of candidateModels) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          return await action(model);
+        } catch (err: any) {
+          lastError = err;
+          const status = err.status || err.code;
+          const msg = (err.message || "").toLowerCase();
+          const isTransient =
+            status === 503 ||
+            status === 429 ||
+            msg.includes("503") ||
+            msg.includes("429") ||
+            msg.includes("high demand") ||
+            msg.includes("resource has been exhausted");
+
+          if (isTransient && attempt === 0) {
+            console.warn(`[AI Engine] ${operationName}: Model "${model}" reported high demand (503/429). Retrying in 700ms...`);
+            await new Promise((r) => setTimeout(r, 700));
+            continue;
+          }
+
+          console.warn(`[AI Engine] ${operationName}: Model "${model}" temporarily unavailable. Trying next fallback model...`);
+          break;
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
   async generateJson<T>(opts: {
     system: string;
     prompt: string;
@@ -79,15 +123,17 @@ class GeminiLlm implements Llm {
                 lastError
               )}. Provide strictly valid JSON conforming to the requested schema.`;
 
-        const response = await this.client.models.generateContent({
-          model: env.AI_MODEL,
-          contents: fullPrompt,
-          config: {
-            systemInstruction: `${opts.system}\nOutput valid JSON only.`,
-            responseMimeType: "application/json",
-            temperature: opts.temperature ?? 0.1,
-          },
-        });
+        const response = await this.executeWithRetryAndFallback("generateJson", (model) =>
+          this.client!.models.generateContent({
+            model,
+            contents: fullPrompt,
+            config: {
+              systemInstruction: `${opts.system}\nOutput valid JSON only.`,
+              responseMimeType: "application/json",
+              temperature: opts.temperature ?? 0.1,
+            },
+          })
+        );
 
         const text = response.text?.trim() ?? "{}";
         const parsedJson = JSON.parse(text);
@@ -153,15 +199,17 @@ class GeminiLlm implements Llm {
         };
       });
 
-      const response = await this.client.models.generateContent({
-        model: env.AI_MODEL,
-        contents,
-        config: {
-          systemInstruction: opts.system,
-          tools: geminiTools,
-          temperature: 0.2,
-        },
-      });
+      const response = await this.executeWithRetryAndFallback("chatWithTools", (model) =>
+        this.client!.models.generateContent({
+          model,
+          contents,
+          config: {
+            systemInstruction: opts.system,
+            tools: geminiTools,
+            temperature: 0.2,
+          },
+        })
+      );
 
       const candidate = response.candidates?.[0];
       const parts = candidate?.content?.parts ?? [];
