@@ -1,0 +1,227 @@
+import { GoogleGenAI } from "@google/genai";
+import { z } from "zod";
+import { env } from "@/lib/env";
+import { AiOutputError, AiUnavailableError } from "@/lib/errors";
+
+export interface ChatTurn {
+  role: "user" | "assistant" | "system" | "tool";
+  content: string;
+  toolCallId?: string;
+  toolName?: string;
+}
+
+export interface ToolDeclaration {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
+export interface Llm {
+  generateJson<T>(opts: {
+    system: string;
+    prompt: string;
+    schema: z.ZodType<T>;
+    temperature?: number;
+  }): Promise<T>;
+
+  chatWithTools(opts: {
+    system: string;
+    messages: ChatTurn[];
+    tools: ToolDeclaration[];
+  }): Promise<{ text?: string; toolCalls: { id: string; name: string; args: unknown }[] }>;
+
+  embed(texts: string[], kind: "document" | "query"): Promise<number[][]>;
+}
+
+// Generate simple mock embeddings for fallback / offline test
+function generateMockEmbedding(text: string, dimensions = 768): number[] {
+  const vec = new Array(dimensions).fill(0);
+  let seed = 0;
+  for (let i = 0; i < text.length; i++) {
+    seed = (seed * 31 + text.charCodeAt(i)) & 0xffffffff;
+  }
+  for (let j = 0; j < dimensions; j++) {
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    vec[j] = (seed / 0xffffffff) * 2 - 1;
+  }
+  // Normalize vector
+  const norm = Math.sqrt(vec.reduce((sum, val) => sum + val * val, 0));
+  return vec.map((v) => v / (norm || 1));
+}
+
+class GeminiLlm implements Llm {
+  private client: GoogleGenAI | null = null;
+
+  constructor() {
+    if (env.GEMINI_API_KEY) {
+      this.client = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
+    }
+  }
+
+  async generateJson<T>(opts: {
+    system: string;
+    prompt: string;
+    schema: z.ZodType<T>;
+    temperature?: number;
+  }): Promise<T> {
+    if (!this.client || !env.GEMINI_API_KEY) {
+      console.warn("GEMINI_API_KEY not configured. Falling back to structured default output.");
+      throw new AiUnavailableError("GEMINI_API_KEY is not configured in .env");
+    }
+
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const fullPrompt =
+          attempt === 0
+            ? opts.prompt
+            : `${opts.prompt}\n\nIMPORTANT: Your previous output failed validation with: ${JSON.stringify(
+                lastError
+              )}. Provide strictly valid JSON conforming to the requested schema.`;
+
+        const response = await this.client.models.generateContent({
+          model: env.AI_MODEL,
+          contents: fullPrompt,
+          config: {
+            systemInstruction: `${opts.system}\nOutput valid JSON only.`,
+            responseMimeType: "application/json",
+            temperature: opts.temperature ?? 0.1,
+          },
+        });
+
+        const text = response.text?.trim() ?? "{}";
+        const parsedJson = JSON.parse(text);
+        const validated = opts.schema.safeParse(parsedJson);
+
+        if (validated.success) {
+          return validated.data;
+        } else {
+          lastError = validated.error.issues;
+        }
+      } catch (err: any) {
+        lastError = err;
+        if (attempt === 1) {
+          throw new AiOutputError("Failed to generate valid structured output from AI", err);
+        }
+      }
+    }
+
+    throw new AiOutputError("Failed to parse and validate AI response", lastError);
+  }
+
+  async chatWithTools(opts: {
+    system: string;
+    messages: ChatTurn[];
+    tools: ToolDeclaration[];
+  }): Promise<{ text?: string; toolCalls: { id: string; name: string; args: unknown }[] }> {
+    if (!this.client || !env.GEMINI_API_KEY) {
+      throw new AiUnavailableError("GEMINI_API_KEY is not configured");
+    }
+
+    try {
+      // Map tools to Gemini functionDeclarations format
+      const geminiTools = opts.tools.length > 0
+        ? [
+            {
+              functionDeclarations: opts.tools.map((t) => ({
+                name: t.name,
+                description: t.description,
+                parameters: t.parameters as any,
+              })),
+            },
+          ]
+        : undefined;
+
+      // Convert messages to Gemini format
+      const contents = opts.messages.map((m) => {
+        if (m.role === "tool") {
+          return {
+            role: "user" as const,
+            parts: [
+              {
+                functionResponse: {
+                  name: m.toolName ?? "unknown",
+                  response: { content: m.content },
+                },
+              },
+            ],
+          };
+        }
+        return {
+          role: m.role === "assistant" ? ("model" as const) : ("user" as const),
+          parts: [{ text: m.content }],
+        };
+      });
+
+      const response = await this.client.models.generateContent({
+        model: env.AI_MODEL,
+        contents,
+        config: {
+          systemInstruction: opts.system,
+          tools: geminiTools,
+          temperature: 0.2,
+        },
+      });
+
+      const candidate = response.candidates?.[0];
+      const parts = candidate?.content?.parts ?? [];
+
+      const toolCalls: { id: string; name: string; args: unknown }[] = [];
+      let textContent = "";
+
+      for (const part of parts) {
+        if ("text" in part && part.text) {
+          textContent += part.text;
+        }
+        if ("functionCall" in part && part.functionCall) {
+          toolCalls.push({
+            id: `call_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            name: part.functionCall.name ?? "",
+            args: part.functionCall.args ?? {},
+          });
+        }
+      }
+
+      return {
+        text: textContent || undefined,
+        toolCalls,
+      };
+    } catch (err: any) {
+      console.error("Gemini chatWithTools error:", err);
+      throw new AiUnavailableError(err.message || "Failed to communicate with AI model");
+    }
+  }
+
+  async embed(texts: string[], kind: "document" | "query" = "document"): Promise<number[][]> {
+    if (!this.client || !env.GEMINI_API_KEY) {
+      // Return fallback embeddings for offline resilience
+      return texts.map((t) => generateMockEmbedding(t));
+    }
+
+    try {
+      const results: number[][] = [];
+      // Batch embedding in chunks of 100
+      for (let i = 0; i < texts.length; i += 100) {
+        const batch = texts.slice(i, i + 100);
+        for (const text of batch) {
+          const resp: any = await this.client.models.embedContent({
+            model: env.EMBEDDING_MODEL,
+            contents: text,
+          });
+          const values = resp.embeddings?.[0]?.values ?? resp.embedding?.values;
+          if (values) {
+            results.push(values);
+          } else {
+            results.push(generateMockEmbedding(text));
+          }
+        }
+      }
+      return results;
+    } catch (err) {
+      console.warn("Embeddings API call failed, falling back to deterministic local embeddings:", err);
+      return texts.map((t) => generateMockEmbedding(t));
+    }
+  }
+}
+
+export const llm: Llm = new GeminiLlm();

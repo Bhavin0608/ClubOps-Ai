@@ -1,0 +1,356 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum EventStatus { 
+  PLANNING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum MemberRole {
+  ORGANIZER
+  VOLUNTEER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+
+enum Level {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskSource {
+  MANUAL
+  AI_GENERATED
+  MEETING_EXTRACTED
+}
+
+enum MeetingStatus {
+  UPLOADED
+  PROCESSED
+  FAILED
+}
+
+enum ItemStatus {
+  PROPOSED
+  APPROVED
+  REJECTED
+}
+
+enum ChunkSource {
+  DOCUMENT
+  MEETING
+}
+
+enum DocStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum RiskStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum AnnouncementStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum Audience {
+  VOLUNTEERS
+  PARTICIPANTS
+  ALL
+}
+
+enum PendingStatus {
+  PENDING
+  EXECUTED
+  REJECTED
+  FAILED
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  memberships  Member[]
+}
+
+model Event {
+  id                   String      @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  description          String?
+  startDate            DateTime
+  endDate              DateTime
+  venue                String?
+  expectedParticipants Int?
+  status               EventStatus @default(PLANNING)
+  createdById          String
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  members        Member[]
+  tasks          Task[]
+  meetings       Meeting[]
+  documents      Document[]
+  chunks         KnowledgeChunk[]
+  risks          Risk[]
+  announcements  Announcement[]
+  pendingActions PendingAction[]
+  chatMessages   ChatMessage[]
+  auditLogs      AuditLog[]
+}
+
+model Member {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  eventId      String     @db.ObjectId
+  userId       String?    @db.ObjectId
+  name         String
+  email        String?
+  role         MemberRole @default(VOLUNTEER)
+  team         String?
+  skills       String[]
+  availability String?
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  event       Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user        User?               @relation(fields: [userId], references: [id])
+  tasks       Task[]              @relation("TaskOwner")
+  actionItems MeetingActionItem[]
+
+  @@index([eventId, userId])
+  @@index([eventId])
+}
+
+model Task {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  eventId     String     @db.ObjectId
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Level      @default(MEDIUM)
+  ownerId     String?    @db.ObjectId
+  team        String?
+  deadline    DateTime?
+  source      TaskSource @default(MANUAL)
+  createdById String
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  event          Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  owner          Member?            @relation("TaskOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  prerequisites  TaskDependency[]   @relation("Dependent")
+  dependents     TaskDependency[]   @relation("Prerequisite")
+  fromActionItem MeetingActionItem?
+
+  @@index([eventId, status])
+  @@index([eventId, deadline])
+}
+
+model TaskDependency {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  taskId         String @db.ObjectId
+  prerequisiteId String @db.ObjectId
+  task           Task   @relation("Dependent", fields: [taskId], references: [id], onDelete: Cascade)
+  prerequisite   Task   @relation("Prerequisite", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, prerequisiteId])
+}
+
+model Meeting {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  eventId      String        @db.ObjectId
+  title        String
+  meetingDate  DateTime
+  participants String[]
+  notes        String?
+  transcript   String?
+  summary      String?
+  decisions    String[]
+  status       MeetingStatus @default(UPLOADED)
+  errorMessage String?
+  createdById  String
+  createdAt    DateTime      @default(now())
+  processedAt  DateTime?
+
+  event       Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  actionItems MeetingActionItem[]
+  chunks      KnowledgeChunk[]
+}
+
+model MeetingActionItem {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  meetingId      String     @db.ObjectId
+  title          String
+  description    String?
+  ownerNameRaw   String?
+  ownerId        String?    @db.ObjectId
+  deadline       DateTime?
+  deadlineRaw    String?
+  priority       Level      @default(MEDIUM)
+  confidence     Float
+  evidence       String?
+  ambiguityNote  String?
+  status         ItemStatus @default(PROPOSED)
+  taskId         String?    @unique @db.ObjectId
+  createdAt      DateTime   @default(now())
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  owner   Member? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  task    Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+}
+
+model Document {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  eventId      String    @db.ObjectId
+  name         String
+  mimeType     String
+  sizeBytes    Int
+  data         Bytes
+  status       DocStatus @default(PROCESSING)
+  errorMessage String?
+  uploadedById String
+  createdAt    DateTime  @default(now())
+
+  event  Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  chunks KnowledgeChunk[]
+}
+
+model KnowledgeChunk {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  eventId        String      @db.ObjectId
+  sourceType     ChunkSource
+  documentId     String?     @db.ObjectId
+  meetingId      String?     @db.ObjectId
+  chunkIndex     Int
+  content        String
+  locator        String?
+  embedding      Float[]
+  embeddingModel String
+
+  event    Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  document Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  meeting  Meeting?  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+}
+
+model Risk {
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  eventId         String     @db.ObjectId
+  fingerprint     String
+  ruleKey         String
+  severity        Level
+  status          RiskStatus @default(OPEN)
+  title           String
+  detail          String
+  entityType      String?
+  entityId        String?
+  evidence        Json
+  evidenceHash    String
+  aiExplanation   Json?
+  aiExplainedHash String?
+  detectedAt      DateTime   @default(now())
+  resolvedAt      DateTime?
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, fingerprint])
+  @@index([eventId, status])
+}
+
+model Announcement {
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  eventId     String             @db.ObjectId
+  title       String
+  content     String
+  audience    Audience           @default(VOLUNTEERS)
+  status      AnnouncementStatus @default(DRAFT)
+  aiGenerated Boolean            @default(false)
+  createdById String
+  publishedAt DateTime?
+  createdAt   DateTime           @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, status])
+}
+
+model PendingAction {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  eventId    String        @db.ObjectId
+  userId     String
+  messageId  String?
+  toolName   String
+  args       Json
+  summary    String
+  status     PendingStatus @default(PENDING)
+  result     Json?
+  error      String?
+  createdAt  DateTime      @default(now())
+  resolvedAt DateTime?
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, userId, status])
+}
+
+model ChatMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String   @db.ObjectId
+  userId    String
+  role      ChatRole
+  content   String
+  toolTrace Json?
+  citations Json?
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, userId, createdAt])
+}
+
+model AuditLog {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId         String   @db.ObjectId
+  actorUserId     String
+  via             String
+  action          String
+  entityType      String
+  entityId        String
+  before          Json?
+  after           Json?
+  pendingActionId String?
+  createdAt       DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, createdAt])
+}

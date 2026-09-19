@@ -1,0 +1,17 @@
+export interface RiskConfig {
+  DUE_SOON_HOURS: number;
+  OVERLOAD_OPEN_TASKS: number;
+  PARTICIPANTS_PER_VOLUNTEER: number;
+  TEAM_UNSTAFFED_MIN_TASKS: number;
+  EVENT_SOON_DAYS: number;
+  EVENT_SOON_MIN_COMPLETION: number;
+}
+
+export const defaultRiskConfig: RiskConfig = {
+  DUE_SOON_HOURS: 72,
+  OVERLOAD_OPEN_TASKS: 6,
+  PARTICIPANTS_PER_VOLUNTEER: 40,
+  TEAM_UNSTAFFED_MIN_TASKS: 3,
+  EVENT_SOON_DAYS: 7,
+  EVENT_SOON_MIN_COMPLETION: 0.5,
+};
