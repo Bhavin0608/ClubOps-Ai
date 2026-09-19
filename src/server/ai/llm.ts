@@ -5,9 +5,11 @@ import { AiOutputError, AiUnavailableError } from "@/lib/errors";
 
 export interface ChatTurn {
   role: "user" | "assistant" | "system" | "tool";
-  content: string;
+  content?: string;
   toolCallId?: string;
   toolName?: string;
+  toolCalls?: { id: string; name: string; args: unknown }[];
+  toolResponses?: { toolName: string; content: string }[];
 }
 
 export interface ToolDeclaration {
@@ -179,25 +181,68 @@ class GeminiLlm implements Llm {
         : undefined;
 
       // Convert messages to Gemini format
-      const contents = opts.messages.map((m) => {
-        if (m.role === "tool") {
-          return {
-            role: "user" as const,
-            parts: [
-              {
-                functionResponse: {
-                  name: m.toolName ?? "unknown",
-                  response: { content: m.content },
+      const rawContents: any[] = [];
+      for (const m of opts.messages) {
+        if (m.role === "assistant") {
+          const parts: any[] = [];
+          if (m.content && m.content.trim()) {
+            parts.push({ text: m.content });
+          }
+          if (m.toolCalls && m.toolCalls.length > 0) {
+            for (const tc of m.toolCalls) {
+              parts.push({
+                functionCall: {
+                  name: tc.name,
+                  args: (tc.args as Record<string, unknown>) || {},
                 },
+              });
+            }
+          }
+          if (parts.length > 0) {
+            rawContents.push({ role: "model", parts });
+          }
+        } else if (m.role === "tool" || m.toolResponses) {
+          const parts: any[] = [];
+          if (m.toolResponses && m.toolResponses.length > 0) {
+            for (const tr of m.toolResponses) {
+              parts.push({
+                functionResponse: {
+                  name: tr.toolName,
+                  response: { output: tr.content },
+                },
+              });
+            }
+          } else if (m.toolName) {
+            parts.push({
+              functionResponse: {
+                name: m.toolName,
+                response: { output: m.content ?? "" },
               },
-            ],
-          };
+            });
+          }
+          if (parts.length > 0) {
+            rawContents.push({ role: "user", parts });
+          }
+        } else if (m.role === "user") {
+          if (m.content && m.content.trim()) {
+            rawContents.push({
+              role: "user",
+              parts: [{ text: m.content }],
+            });
+          }
         }
-        return {
-          role: m.role === "assistant" ? ("model" as const) : ("user" as const),
-          parts: [{ text: m.content }],
-        };
-      });
+      }
+
+      // Merge consecutive turns with the same role so Gemini does not reject the conversation
+      const contents: any[] = [];
+      for (const item of rawContents) {
+        const prev = contents[contents.length - 1];
+        if (prev && prev.role === item.role) {
+          prev.parts.push(...item.parts);
+        } else {
+          contents.push({ role: item.role, parts: [...item.parts] });
+        }
+      }
 
       const response = await this.executeWithRetryAndFallback("chatWithTools", (model) =>
         this.client!.models.generateContent({

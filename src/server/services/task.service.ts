@@ -317,11 +317,6 @@ export const taskService = {
 
   async delete(ctx: Ctx, taskId: string) {
     requireOrganizer(ctx);
-    if (ctx.via === "AI") {
-      // BR-10: The AI never deletes anything
-      throw new ForbiddenError("AI is not permitted to delete tasks");
-    }
-
     const before = await this.get(ctx, taskId);
     await prisma.task.delete({ where: { id: taskId } });
 

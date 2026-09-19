@@ -123,6 +123,7 @@ model Event {
   pendingActions PendingAction[]
   chatMessages   ChatMessage[]
   auditLogs      AuditLog[]
+  memories       OperationalMemory[]
 }
 
 model Member {
@@ -353,4 +354,19 @@ model AuditLog {
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([eventId, createdAt])
+}
+
+model OperationalMemory {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId     String   @db.ObjectId
+  category    String   @default("PREFERENCE")
+  key         String
+  instruction String
+  confidence  Float    @default(1.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
 }

@@ -15,6 +15,7 @@ import {
   Wrench,
   ChevronRight,
   MessageSquare,
+  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,9 +38,10 @@ interface AssistantDrawerProps {
 const SUGGESTED_PROMPTS = [
   "What should I focus on right now?",
   "Who is overloaded?",
-  "What could delay the event?",
+  'Assign the task "Finalize volunteer shift roster" to Rahul',
   "What does the venue agreement say about capacity?",
-  "Move the venue confirmation deadline to Friday and assign it to Rahul.",
+  'Move "Confirm venue booking" deadline to Friday and assign it to Rahul',
+  "Remember that Rahul is the lead for logistics",
 ];
 
 export function AssistantDrawer({
@@ -53,12 +55,34 @@ export function AssistantDrawer({
       id: "welcome",
       role: "assistant",
       content:
-        "Hello! I am your ClubOps AI Assistant. I can analyze operational risks, find facts in uploaded documents, extract action items, and stage confirmed actions.",
+        "Hello! I am your ClubOps AI Assistant. I can analyze operational risks, answer questions with exact database facts, execute task & volunteer CRUD, and stage confirmed actions.",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Load persistent chat history from DB on open
+  useEffect(() => {
+    if (isOpen && eventId) {
+      fetch(`/api/ai/chat?eventId=${eventId}`)
+        .then((r) => (r.ok ? r.json() : []))
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            const loaded: ChatMessageItem[] = data.map((m: any) => ({
+              id: m.id,
+              role: m.role.toLowerCase() as "user" | "assistant",
+              content: m.content,
+              toolTrace: m.toolTrace ?? undefined,
+              citations: m.citations ?? undefined,
+            }));
+            setMessages(loaded);
+          }
+        })
+        .catch((err) => console.error("Failed to load chat history:", err));
+    }
+  }, [isOpen, eventId]);
 
   useEffect(() => {
     if (initialPrompt && isOpen) {
@@ -69,6 +93,25 @@ export function AssistantDrawer({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  const handleClearHistory = async () => {
+    if (clearing || loading) return;
+    setClearing(true);
+    try {
+      await fetch(`/api/ai/chat?eventId=${eventId}`, { method: "DELETE" });
+      setMessages([
+        {
+          id: "welcome_fresh",
+          role: "assistant",
+          content: "Chat history cleared. How can I assist you with this event?",
+        },
+      ]);
+    } catch (err) {
+      console.error("Failed to clear chat:", err);
+    } finally {
+      setClearing(false);
+    }
+  };
 
   const handleSendMessage = async (textToSend?: string) => {
     const messageText = (textToSend || input).trim();
@@ -123,9 +166,9 @@ export function AssistantDrawer({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-slate-950 border-l border-slate-800 shadow-2xl flex flex-col transition-all">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/60 backdrop-blur-sm">
+    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-slate-950 border-l border-slate-800 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
+      {/* Drawer Header */}
+      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
             <Sparkles className="w-4 h-4" />
@@ -137,15 +180,25 @@ export function AssistantDrawer({
                 PROD
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">Operational Copilot & Tool Executor</p>
+            <p className="text-[11px] text-slate-400">Continuous Memory & Tool Executor</p>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleClearHistory}
+            disabled={clearing}
+            title="Clear Chat History"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            <RotateCcw className={cn("w-4 h-4", clearing && "animate-spin text-blue-400")} />
+          </button>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Suggested prompts carousel / bar */}
@@ -200,19 +253,35 @@ export function AssistantDrawer({
                 </div>
               )}
 
-              <div className="whitespace-pre-wrap text-xs md:text-sm">{m.content}</div>
+              {/* Message Markdown Content */}
+              <div className="whitespace-pre-wrap leading-relaxed space-y-2">
+                {m.content}
+              </div>
 
-              {/* Staged Consequential Actions */}
-              {m.stagedActions && m.stagedActions.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {m.stagedActions.map((action) => (
-                    <PendingActionCard key={action.id} action={action} />
-                  ))}
+              {/* Verified Document Citations */}
+              {m.citations && m.citations.length > 0 && (
+                <div className="mt-3 pt-2.5 border-t border-slate-800">
+                  <CitationList citations={m.citations} />
                 </div>
               )}
 
-              {/* Grounded RAG Citations */}
-              {m.citations && <CitationList citations={m.citations} />}
+              {/* Staged Consequential Actions (Human Confirmation Required) */}
+              {m.stagedActions && m.stagedActions.length > 0 && (
+                <div className="mt-3.5 pt-3 border-t border-slate-800 space-y-2">
+                  <div className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider">
+                    Approval Required (Human-in-the-Loop)
+                  </div>
+                  {m.stagedActions.map((pa) => (
+                    <PendingActionCard
+                      key={pa.id}
+                      action={pa}
+                      onResolved={() => {
+                        window.location.reload();
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {m.role === "user" && (
@@ -224,13 +293,13 @@ export function AssistantDrawer({
         ))}
 
         {loading && (
-          <div className="flex gap-3 text-sm items-center text-slate-400">
-            <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <div className="flex gap-3 text-sm justify-start">
+            <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mt-0.5">
               <Bot className="w-3.5 h-3.5" />
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl px-4 py-2 flex items-center gap-2 text-xs">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
-              <span>Analyzing operations and executing tools...</span>
+            <div className="rounded-2xl rounded-tl-none bg-slate-900 border border-slate-800 px-4 py-3 text-slate-400 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+              <span className="text-xs">Analyzing event state & executing tools...</span>
             </div>
           </div>
         )}
@@ -238,32 +307,36 @@ export function AssistantDrawer({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSendMessage();
-        }}
-        className="p-3 border-t border-slate-800 bg-slate-900/60 backdrop-blur-sm"
-      >
-        <div className="flex items-center gap-2">
+      {/* Input Field */}
+      <div className="p-3 border-t border-slate-800 bg-slate-900/60 backdrop-blur-md">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSendMessage();
+          }}
+          className="flex items-center gap-2"
+        >
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask questions, query documents, or propose actions..."
-            className="bg-slate-950 border-slate-700 text-sm h-10 placeholder:text-slate-500 focus-visible:ring-blue-500"
+            placeholder='Ask a question, assign tasks, or say "Remember that..."'
+            className="flex-1 bg-slate-950 border-slate-800 text-sm focus-visible:ring-blue-500"
             disabled={loading}
           />
           <Button
             type="submit"
-            size="icon"
-            className="h-10 w-10 bg-blue-600 hover:bg-blue-500 text-white flex-shrink-0"
-            disabled={loading || !input.trim()}
+            size="sm"
+            disabled={!input.trim() || loading}
+            className="bg-blue-600 hover:bg-blue-500 text-white cursor-pointer px-3"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
           </Button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

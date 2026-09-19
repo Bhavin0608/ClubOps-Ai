@@ -3,6 +3,7 @@ import { Ctx } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { taskService } from "@/server/services/task.service";
 import { memberService } from "@/server/services/member.service";
+import { memoryService } from "@/server/services/memory.service";
 import { riskService } from "@/server/services/risk.service";
 import { dashboardService } from "@/server/services/dashboard.service";
 import { meetingService } from "@/server/services/meeting.service";
@@ -12,6 +13,7 @@ import { planWorkflow } from "../workflows/plan.workflow";
 import { registerActionRunner } from "@/server/services/pending-action.service";
 import { formatDisplayDate } from "@/lib/dates";
 import { NotFoundError, ValidationError } from "@/lib/errors";
+import { addDays } from "date-fns";
 
 export interface AiTool<I extends z.ZodTypeAny = z.ZodTypeAny> {
   name: string;
@@ -24,11 +26,111 @@ export interface AiTool<I extends z.ZodTypeAny = z.ZodTypeAny> {
   run: (args: z.infer<I>, ctx: Ctx) => Promise<unknown>;
 }
 
+// Smart fuzzy resolution helpers
+export async function resolveTaskId(ctx: Ctx, identifier: string): Promise<string> {
+  const trimmed = identifier.trim();
+
+  // 1. Direct ID match (only if valid 24-char hex ObjectId)
+  if (/^[0-9a-fA-F]{24}$/.test(trimmed)) {
+    const direct = await prisma.task.findFirst({
+      where: { id: trimmed, eventId: ctx.eventId },
+    });
+    if (direct) return direct.id;
+  }
+
+  // 2. In-memory matching over event tasks (safe from MongoDB driver errors)
+  const allTasks = await prisma.task.findMany({
+    where: { eventId: ctx.eventId },
+    select: { id: true, title: true, createdAt: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const normalized = trimmed.toLowerCase();
+
+  // Exact match
+  const exact = allTasks.find((t) => t.title.toLowerCase() === normalized);
+  if (exact) return exact.id;
+
+  // Substring match
+  const sub = allTasks.find((t) => t.title.toLowerCase().includes(normalized));
+  if (sub) return sub.id;
+
+  // Multi-word match
+  const words = normalized.split(/\s+/).filter((w) => w.length > 2);
+  if (words.length > 0) {
+    const wordMatch = allTasks.find((t) => {
+      const lt = t.title.toLowerCase();
+      return words.every((w) => lt.includes(w));
+    });
+    if (wordMatch) return wordMatch.id;
+  }
+
+  // 3. "Task 1", "Task 2", etc.
+  const matchNum = trimmed.match(/\b(\d+)\b/);
+  if (matchNum) {
+    const idx = parseInt(matchNum[1], 10) - 1;
+    if (idx >= 0 && idx < allTasks.length) {
+      return allTasks[idx].id;
+    }
+  }
+
+  throw new NotFoundError(`Could not find task matching "${identifier}"`);
+}
+
+export async function resolveMemberId(ctx: Ctx, identifier: string | null | undefined): Promise<string | null> {
+  if (!identifier || identifier.toLowerCase() === "unassigned" || identifier.toLowerCase() === "none") {
+    return null;
+  }
+  const trimmed = identifier.trim();
+
+  // 1. Direct ID match (only if valid 24-char hex ObjectId)
+  if (/^[0-9a-fA-F]{24}$/.test(trimmed)) {
+    const direct = await prisma.member.findFirst({
+      where: { id: trimmed, eventId: ctx.eventId },
+    });
+    if (direct) return direct.id;
+  }
+
+  // 2. In-memory matching over active event members
+  const members = await prisma.member.findMany({
+    where: { eventId: ctx.eventId, active: true },
+  });
+
+  const normalized = trimmed.toLowerCase();
+
+  // Exact match
+  const exact = members.find((m) => m.name.toLowerCase() === normalized);
+  if (exact) return exact.id;
+
+  // First name match
+  const firstName = members.find((m) => m.name.toLowerCase().split(" ")[0] === normalized.split(" ")[0]);
+  if (firstName) return firstName.id;
+
+  // Substring match
+  const sub = members.find((m) => m.name.toLowerCase().includes(normalized));
+  if (sub) return sub.id;
+
+  throw new NotFoundError(`Could not find volunteer matching "${identifier}"`);
+}
+
+export function parseDeadline(input: string, baseDate = new Date()): Date {
+  const lower = input.toLowerCase().trim();
+  if (lower === "today") return baseDate;
+  if (lower === "tomorrow") return addDays(baseDate, 1);
+  if (lower.startsWith("in ") && lower.endsWith(" days")) {
+    const d = parseInt(lower.replace("in ", "").replace(" days", ""), 10);
+    if (!isNaN(d)) return addDays(baseDate, d);
+  }
+  const parsed = new Date(input);
+  if (!isNaN(parsed.getTime())) return parsed;
+  return addDays(baseDate, 3);
+}
+
 export const toolRegistry: Record<string, AiTool<any>> = {
   // 1. getEventSummary
   getEventSummary: {
     name: "getEventSummary",
-    description: "Returns overall event statistics, progress metrics, days countdown, and risk counts.",
+    description: "Returns overall event statistics, progress metrics, countdown days, and open risk counts.",
     input: z.object({}),
     kind: "read",
     confirm: false,
@@ -40,7 +142,7 @@ export const toolRegistry: Record<string, AiTool<any>> = {
   // 2. listTasks
   listTasks: {
     name: "listTasks",
-    description: "Search and filter tasks for the event. Always call this to find real task IDs before proposing updates.",
+    description: "Search and filter tasks for the event by status, owner, team, priority, or search query.",
     input: z.object({
       status: z.enum(["TODO", "IN_PROGRESS", "BLOCKED", "COMPLETED"]).optional(),
       ownerId: z.string().optional(),
@@ -104,7 +206,7 @@ export const toolRegistry: Record<string, AiTool<any>> = {
   // 5. getMeetingSummary
   getMeetingSummary: {
     name: "getMeetingSummary",
-    description: "Fetch meeting summary, decisions, and action items. Defaults to the latest meeting if meetingId is omitted.",
+    description: "Fetch meeting summary, decisions, and action items. Defaults to latest meeting if omitted.",
     input: z.object({
       meetingId: z.string().optional(),
     }),
@@ -123,9 +225,9 @@ export const toolRegistry: Record<string, AiTool<any>> = {
   // 6. searchDocuments
   searchDocuments: {
     name: "searchDocuments",
-    description: "Search uploaded event documents, contracts, agreements, and meeting transcripts using RAG semantic retrieval.",
+    description: "Search uploaded event documents, contracts, agreements, and meeting transcripts using semantic RAG retrieval.",
     input: z.object({
-      query: z.string().describe("The specific query to search in event documents"),
+      query: z.string().describe("Specific query or question to search in event documents"),
     }),
     kind: "read",
     confirm: false,
@@ -134,25 +236,292 @@ export const toolRegistry: Record<string, AiTool<any>> = {
     },
   },
 
-  // 7. updateTaskStatus
+  // 7. listLearnedMemories (Continuous Learning)
+  listLearnedMemories: {
+    name: "listLearnedMemories",
+    description: "Retrieve all learned operational rules, user preferences, corrections, and instructions stored for this event.",
+    input: z.object({}),
+    kind: "read",
+    confirm: false,
+    async run(_args, ctx) {
+      return memoryService.list(ctx);
+    },
+  },
+
+  // 8. saveLearnedMemory (Continuous Learning)
+  saveLearnedMemory: {
+    name: "saveLearnedMemory",
+    description: "Save or update a learned operational rule, user preference, or correction so the AI adheres to it in all future queries.",
+    input: z.object({
+      key: z.string().describe("Short unique topic key, e.g. 'Logistics-Lead', 'Venue-Curfew'"),
+      instruction: z.string().describe("Exact operational rule or user preference to remember"),
+      category: z.enum(["PREFERENCE", "CORRECTION", "RULE", "FEEDBACK"]).optional(),
+    }),
+    kind: "write",
+    confirm: false,
+    async run(args, ctx) {
+      return memoryService.save(ctx, {
+        key: args.key,
+        instruction: args.instruction,
+        category: args.category ?? "PREFERENCE",
+      });
+    },
+  },
+
+  // 9. assignTask (CRUD: Assign/Reassign - Consequential)
+  assignTask: {
+    name: "assignTask",
+    description: "Assign or reassign a task to a volunteer. Accepts task title/ID and volunteer name/ID.",
+    input: z.object({
+      task: z.string().describe("Task title, partial title, or task ID"),
+      assignee: z.string().nullable().describe("Volunteer name, member ID, or 'unassigned'"),
+    }),
+    kind: "write",
+    confirm: true,
+    async validate(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      const memberId = await resolveMemberId(ctx, args.assignee);
+      await taskService.get(ctx, taskId);
+      if (memberId) {
+        await memberService.get(ctx, memberId);
+      }
+    },
+    async summarize(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      const memberId = await resolveMemberId(ctx, args.assignee);
+      const task = await taskService.get(ctx, taskId);
+      let targetName = "Unassigned";
+      if (memberId) {
+        const member = await memberService.get(ctx, memberId);
+        targetName = member.name;
+      }
+      const currentOwner = task.owner?.name ?? "Unassigned";
+      return `Reassign "${task.title}": ${currentOwner} → ${targetName}`;
+    },
+    async run(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      const memberId = await resolveMemberId(ctx, args.assignee);
+      return taskService.assign(ctx, taskId, memberId);
+    },
+  },
+
+  // 10. changeTaskDeadline (CRUD: Update Deadline - Consequential)
+  changeTaskDeadline: {
+    name: "changeTaskDeadline",
+    description: "Change the deadline of a task. Accepts task title/ID and date string ('2026-10-05', 'tomorrow', 'Friday').",
+    input: z.object({
+      task: z.string().describe("Task title, partial title, or task ID"),
+      deadline: z.string().describe("New deadline date string or relative date"),
+    }),
+    kind: "write",
+    confirm: true,
+    async validate(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      await taskService.get(ctx, taskId);
+    },
+    async summarize(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      const task = await taskService.get(ctx, taskId);
+      const date = parseDeadline(args.deadline, ctx.now);
+      const oldDeadline = formatDisplayDate(task.deadline);
+      const newDeadline = formatDisplayDate(date);
+      return `Change deadline of "${task.title}": ${oldDeadline} → ${newDeadline}`;
+    },
+    async run(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      const date = parseDeadline(args.deadline, ctx.now);
+      return taskService.changeDeadline(ctx, taskId, date);
+    },
+  },
+
+  // 11. updateTaskStatus (CRUD: Update Status - Direct)
   updateTaskStatus: {
     name: "updateTaskStatus",
-    description: "Update the progress status of a task (TODO, IN_PROGRESS, BLOCKED, COMPLETED). Audited directly.",
+    description: "Update the progress status of a task (TODO, IN_PROGRESS, BLOCKED, COMPLETED).",
     input: z.object({
-      taskId: z.string(),
+      task: z.string().describe("Task title, partial title, or task ID"),
       status: z.enum(["TODO", "IN_PROGRESS", "BLOCKED", "COMPLETED"]),
     }),
     kind: "write",
     confirm: false,
     async run(args, ctx) {
-      return taskService.updateStatus(ctx, args.taskId, args.status);
+      const taskId = await resolveTaskId(ctx, args.task);
+      return taskService.updateStatus(ctx, taskId, args.status);
     },
   },
 
-  // 8. draftAnnouncement
+  // 12. updateTask (CRUD: Full Update - Consequential)
+  updateTask: {
+    name: "updateTask",
+    description: "Update title, description, team, or priority of a task.",
+    input: z.object({
+      task: z.string().describe("Task title, partial title, or task ID"),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
+      team: z.string().optional(),
+    }),
+    kind: "write",
+    confirm: true,
+    async validate(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      await taskService.get(ctx, taskId);
+    },
+    async summarize(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      const task = await taskService.get(ctx, taskId);
+      const changes: string[] = [];
+      if (args.title) changes.push(`Title: "${args.title}"`);
+      if (args.priority) changes.push(`Priority: ${args.priority}`);
+      if (args.team) changes.push(`Team: ${args.team}`);
+      return `Update task "${task.title}": ${changes.join(", ")}`;
+    },
+    async run(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      return taskService.update(ctx, taskId, {
+        title: args.title,
+        description: args.description,
+        priority: args.priority,
+        team: args.team,
+      });
+    },
+  },
+
+  // 13. deleteTask (CRUD: Delete - Consequential)
+  deleteTask: {
+    name: "deleteTask",
+    description: "Delete a task from the event. Requires user confirmation.",
+    input: z.object({
+      task: z.string().describe("Task title, partial title, or task ID to delete"),
+    }),
+    kind: "write",
+    confirm: true,
+    async validate(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      await taskService.get(ctx, taskId);
+    },
+    async summarize(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      const task = await taskService.get(ctx, taskId);
+      return `Delete task "${task.title}" (${task.team || "General"})`;
+    },
+    async run(args, ctx) {
+      const taskId = await resolveTaskId(ctx, args.task);
+      return taskService.delete(ctx, taskId);
+    },
+  },
+
+  // 14. createTask (CRUD: Create Single Task - Consequential)
+  createTask: {
+    name: "createTask",
+    description: "Create a new task with title, team, priority, deadline, and optional volunteer assignee.",
+    input: z.object({
+      title: z.string().describe("Task title"),
+      description: z.string().optional(),
+      team: z.string().optional().describe("Team name (e.g. Logistics, Tech, Marketing)"),
+      priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
+      deadline: z.string().optional().describe("Deadline date string or relative date"),
+      assignee: z.string().optional().describe("Volunteer name or member ID to assign to"),
+    }),
+    kind: "write",
+    confirm: true,
+    async validate(args, ctx) {
+      if (!args.title || args.title.trim().length === 0) {
+        throw new ValidationError("Task title is required");
+      }
+      if (args.assignee) {
+        await resolveMemberId(ctx, args.assignee);
+      }
+    },
+    async summarize(args, ctx) {
+      let assigneeName = "Unassigned";
+      if (args.assignee) {
+        const memberId = await resolveMemberId(ctx, args.assignee);
+        if (memberId) {
+          const m = await memberService.get(ctx, memberId);
+          assigneeName = m.name;
+        }
+      }
+      return `Create task "${args.title}" (${args.team || "General"}, Priority: ${args.priority || "MEDIUM"}, Assigned to: ${assigneeName})`;
+    },
+    async run(args, ctx) {
+      let ownerId: string | null = null;
+      if (args.assignee) {
+        ownerId = await resolveMemberId(ctx, args.assignee);
+      }
+      const deadlineDate = args.deadline ? parseDeadline(args.deadline, ctx.now) : null;
+      return taskService.create(ctx, {
+        title: args.title,
+        description: args.description,
+        team: args.team,
+        priority: args.priority ?? "MEDIUM",
+        deadline: deadlineDate,
+        ownerId,
+        source: "AI_GENERATED",
+      });
+    },
+  },
+
+  // 15. addVolunteer (CRUD: Create Member - Consequential)
+  addVolunteer: {
+    name: "addVolunteer",
+    description: "Add a new volunteer to the event roster.",
+    input: z.object({
+      name: z.string().describe("Volunteer's full name"),
+      team: z.string().optional().describe("Assigned team"),
+      role: z.enum(["ORGANIZER", "VOLUNTEER"]).optional(),
+      skills: z.array(z.string()).optional().describe("List of skills"),
+      email: z.string().optional(),
+    }),
+    kind: "write",
+    confirm: true,
+    async validate(args) {
+      if (!args.name || args.name.trim().length === 0) {
+        throw new ValidationError("Volunteer name is required");
+      }
+    },
+    async summarize(args) {
+      return `Add volunteer ${args.name} to ${args.team || "General"} team (Role: ${args.role || "VOLUNTEER"})`;
+    },
+    async run(args, ctx) {
+      return memberService.create(ctx, {
+        name: args.name,
+        team: args.team,
+        role: args.role ?? "VOLUNTEER",
+        skills: args.skills ?? [],
+        email: args.email,
+      });
+    },
+  },
+
+  // 16. removeVolunteer (CRUD: Delete Member - Consequential)
+  removeVolunteer: {
+    name: "removeVolunteer",
+    description: "Remove or deactivate a volunteer from the event roster.",
+    input: z.object({
+      member: z.string().describe("Volunteer name or member ID to remove"),
+    }),
+    kind: "write",
+    confirm: true,
+    async validate(args, ctx) {
+      const memberId = await resolveMemberId(ctx, args.member);
+      if (!memberId) throw new NotFoundError("Member not found");
+    },
+    async summarize(args, ctx) {
+      const memberId = await resolveMemberId(ctx, args.member);
+      const member = await memberService.get(ctx, memberId!);
+      return `Remove volunteer "${member.name}" (${member.team || "General"}) from the event roster`;
+    },
+    async run(args, ctx) {
+      const memberId = await resolveMemberId(ctx, args.member);
+      return memberService.delete(ctx, memberId!);
+    },
+  },
+
+  // 17. draftAnnouncement
   draftAnnouncement: {
     name: "draftAnnouncement",
-    description: "Draft an event announcement. Saves as an inert DRAFT that an organizer can review and publish.",
+    description: "Draft an event announcement saved as an inert DRAFT for review and publication.",
     input: z.object({
       purpose: z.string(),
       audience: z.enum(["VOLUNTEERS", "PARTICIPANTS", "ALL"]).optional(),
@@ -165,143 +534,15 @@ export const toolRegistry: Record<string, AiTool<any>> = {
     },
   },
 
-  // 9. assignTask (Consequential -> confirm: true)
-  assignTask: {
-    name: "assignTask",
-    description: "Assign a task to a volunteer. Requires user confirmation.",
-    input: z.object({
-      taskId: z.string(),
-      ownerId: z.string().nullable(),
-    }),
-    kind: "write",
-    confirm: true,
-    async validate(args, ctx) {
-      await taskService.get(ctx, args.taskId);
-      if (args.ownerId) {
-        await memberService.get(ctx, args.ownerId);
-      }
-    },
-    async summarize(args, ctx) {
-      const task = await taskService.get(ctx, args.taskId);
-      let targetOwner = "Unassigned";
-      if (args.ownerId) {
-        const member = await memberService.get(ctx, args.ownerId);
-        targetOwner = member.name;
-      }
-      const currentOwner = task.owner?.name ?? "Unassigned";
-      return `Reassign "${task.title}": ${currentOwner} → ${targetOwner}`;
-    },
-    async run(args, ctx) {
-      return taskService.assign(ctx, args.taskId, args.ownerId);
-    },
-  },
-
-  // 10. changeTaskDeadline (Consequential -> confirm: true)
-  changeTaskDeadline: {
-    name: "changeTaskDeadline",
-    description: "Change the deadline of a task. Requires user confirmation.",
-    input: z.object({
-      taskId: z.string(),
-      deadlineISO: z.string().describe("New deadline in YYYY-MM-DD or ISO string format"),
-    }),
-    kind: "write",
-    confirm: true,
-    async validate(args, ctx) {
-      await taskService.get(ctx, args.taskId);
-      const date = new Date(args.deadlineISO);
-      if (isNaN(date.getTime())) {
-        throw new ValidationError("Invalid deadline date provided");
-      }
-    },
-    async summarize(args, ctx) {
-      const task = await taskService.get(ctx, args.taskId);
-      const oldDeadline = formatDisplayDate(task.deadline);
-      const newDeadline = formatDisplayDate(new Date(args.deadlineISO));
-      return `Change deadline of "${task.title}": ${oldDeadline} → ${newDeadline}`;
-    },
-    async run(args, ctx) {
-      return taskService.changeDeadline(ctx, args.taskId, new Date(args.deadlineISO));
-    },
-  },
-
-  // 11. updateTask (Consequential -> confirm: true)
-  updateTask: {
-    name: "updateTask",
-    description: "Update task title, description, team, or priority. Requires user confirmation.",
-    input: z.object({
-      taskId: z.string(),
-      title: z.string().optional(),
-      description: z.string().optional(),
-      priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
-      team: z.string().optional(),
-    }),
-    kind: "write",
-    confirm: true,
-    async validate(args, ctx) {
-      await taskService.get(ctx, args.taskId);
-    },
-    async summarize(args, ctx) {
-      const task = await taskService.get(ctx, args.taskId);
-      const changes: string[] = [];
-      if (args.title) changes.push(`Title: "${args.title}"`);
-      if (args.priority) changes.push(`Priority: ${args.priority}`);
-      if (args.team) changes.push(`Team: ${args.team}`);
-      return `Update "${task.title}": ${changes.join(", ")}`;
-    },
-    async run(args, ctx) {
-      return taskService.update(ctx, args.taskId, args);
-    },
-  },
-
-  // 12. createTasks (Consequential -> confirm: true)
-  createTasks: {
-    name: "createTasks",
-    description: "Create one or more new tasks. Requires user confirmation.",
-    input: z.object({
-      tasks: z.array(
-        z.object({
-          title: z.string(),
-          description: z.string().optional(),
-          priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
-          team: z.string().optional(),
-          deadlineISO: z.string().optional(),
-          ownerId: z.string().optional(),
-        })
-      ),
-    }),
-    kind: "write",
-    confirm: true,
-    async validate(args, ctx) {
-      if (!args.tasks || args.tasks.length === 0) {
-        throw new ValidationError("Task list cannot be empty");
-      }
-    },
-    async summarize(args) {
-      return `Create ${args.tasks.length} new task(s): ${args.tasks.map((t: any) => `"${t.title}"`).join(", ")}`;
-    },
-    async run(args, ctx) {
-      const inputs = args.tasks.map((t: any) => ({
-        title: t.title,
-        description: t.description,
-        priority: t.priority ?? "MEDIUM",
-        team: t.team,
-        deadline: t.deadlineISO ? new Date(t.deadlineISO) : null,
-        ownerId: t.ownerId ?? null,
-        source: "AI_GENERATED" as const,
-      }));
-      return taskService.createMany(ctx, inputs);
-    },
-  },
-
-  // 13. proposeEventPlan (Consequential -> confirm: true)
+  // 18. proposeEventPlan
   proposeEventPlan: {
     name: "proposeEventPlan",
-    description: "Propose an end-to-end event plan with teams, tasks, and dependencies. Stages a confirmation card.",
+    description: "Propose an end-to-end strategic event plan with teams, deliverables, and dependencies.",
     input: z.object({
       instructions: z.string().optional(),
     }),
     kind: "write",
-    confirm: false, // Internal staging handles confirmation
+    confirm: false,
     async run(args, ctx) {
       return planWorkflow.generate(ctx, args.instructions);
     },

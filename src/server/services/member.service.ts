@@ -141,4 +141,17 @@ export const memberService = {
     requireOrganizer(ctx);
     return this.update(ctx, memberId, { active: false });
   },
+
+  async delete(ctx: Ctx, memberId: string) {
+    requireOrganizer(ctx);
+    const before = await this.get(ctx, memberId);
+    await prisma.member.delete({ where: { id: memberId } });
+    await auditService.record(ctx, {
+      action: "member.deleted",
+      entityType: "MEMBER",
+      entityId: memberId,
+      before,
+    });
+    return { success: true };
+  },
 };
