@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { StatusBadge, TaskStatus } from "@/components/shared/StatusBadge";
+import { StatusBadge, TaskStatus, ALLOWED_TASK_TRANSITIONS } from "@/components/shared/StatusBadge";
 import { SeverityBadge } from "@/components/shared/SeverityBadge";
 import { SourceBadge } from "@/components/shared/SourceBadge";
 import { DeadlinePill } from "@/components/shared/DeadlinePill";
@@ -160,8 +160,9 @@ export function TaskListTable({
                 </tr>
               ) : (
                 filteredTasks.map((t) => {
-                  const isAssignedCompleted = Boolean(t.owner && t.status === "COMPLETED");
-                  const canEditStatus = (!isVolunteer || t.owner?.id === currentMemberId) && !isAssignedCompleted;
+                  const isCompleted = t.status === "COMPLETED";
+                  const canEditStatus = (!isVolunteer || t.owner?.id === currentMemberId) && !isCompleted;
+                  const allowedOptions = ALLOWED_TASK_TRANSITIONS[t.status] ?? [t.status];
                   const prereqCount = t.prerequisites?.length ?? 0;
                   const dependentCount = t.dependents?.length ?? 0;
 
@@ -190,10 +191,14 @@ export function TaskListTable({
                             }
                             className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded px-2 py-1 focus:outline-none cursor-pointer"
                           >
-                            <option value="TODO">To Do</option>
-                            <option value="IN_PROGRESS">In Progress</option>
-                            <option value="BLOCKED">Blocked</option>
-                            <option value="COMPLETED">Completed</option>
+                            {allowedOptions.includes("TODO") && <option value="TODO">To Do</option>}
+                            {allowedOptions.includes("IN_PROGRESS") && (
+                              <option value="IN_PROGRESS">
+                                {t.status === "TODO" ? "Start Task (In Progress)" : "In Progress"}
+                              </option>
+                            )}
+                            {allowedOptions.includes("BLOCKED") && <option value="BLOCKED">Blocked</option>}
+                            {allowedOptions.includes("COMPLETED") && <option value="COMPLETED">Completed</option>}
                           </select>
                         ) : (
                           <StatusBadge status={t.status} />

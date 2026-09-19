@@ -3,6 +3,7 @@ import { Ctx, requireOrganizer } from "@/lib/api";
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors";
 import { auditService } from "./audit.service";
 import { Level, TaskSource, TaskStatus } from "@prisma/client";
+import { ALLOWED_TASK_TRANSITIONS } from "@/components/shared/StatusBadge";
 
 export interface CreateTaskInput {
   title: string;
@@ -228,9 +229,24 @@ export const taskService = {
       if (!member) throw new ValidationError("Owner must be an active member of this event");
     }
 
-    // Constraint: An assigned task that is deemed completed cannot be changed to any other status
-    if (before.ownerId && before.status === "COMPLETED" && input.status && input.status !== "COMPLETED") {
-      throw new ValidationError("A task that is assigned and completed cannot be changed to another status");
+    // Status state machine transitions check (Rules: a, b, c, d)
+    if (input.status && input.status !== before.status) {
+      const allowed = ALLOWED_TASK_TRANSITIONS[before.status as TaskStatus] ?? [];
+      if (!allowed.includes(input.status)) {
+        if (before.status === "COMPLETED") {
+          throw new ValidationError("A completed task cannot be changed to any other status");
+        }
+        if (before.status === "TODO" && input.status !== "IN_PROGRESS") {
+          throw new ValidationError("A task in To-Do state can only be transitioned to In Progress");
+        }
+        if (before.status === "BLOCKED" && input.status !== "IN_PROGRESS") {
+          throw new ValidationError("A blocked task can only be transitioned back to In Progress");
+        }
+        if (input.status === "TODO") {
+          throw new ValidationError("Tasks cannot be reverted back to To Do once in progress or blocked");
+        }
+        throw new ValidationError(`Cannot transition task status from ${before.status} to ${input.status}`);
+      }
     }
 
     // BR-5: CompletedAt tracking

@@ -4,6 +4,13 @@ import { CheckCircle2, Circle, Clock, Ban } from "lucide-react";
 
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED";
 
+export const ALLOWED_TASK_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
+  TODO: ["TODO", "IN_PROGRESS"],
+  IN_PROGRESS: ["IN_PROGRESS", "BLOCKED", "COMPLETED"],
+  BLOCKED: ["BLOCKED", "IN_PROGRESS"],
+  COMPLETED: ["COMPLETED"],
+};
+
 interface StatusBadgeProps {
   status: TaskStatus | string;
 }
