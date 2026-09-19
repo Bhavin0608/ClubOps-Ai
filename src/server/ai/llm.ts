@@ -162,7 +162,7 @@ class GeminiLlm implements Llm {
     system: string;
     messages: ChatTurn[];
     tools: ToolDeclaration[];
-  }): Promise<{ text?: string; toolCalls: { id: string; name: string; args: unknown }[] }> {
+  }): Promise<{ text?: string; toolCalls: { id: string; name: string; args: unknown; rawPart?: any }[]; rawParts?: any[] }> {
     if (!this.client || !env.GEMINI_API_KEY) {
       throw new AiUnavailableError("GEMINI_API_KEY is not configured");
     }

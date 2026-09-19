@@ -17,6 +17,7 @@ import {
   MessageSquare,
   RotateCcw,
 } from "lucide-react";
+import { FormattedMessage } from "@/components/shared/FormattedMessage";
 import { cn } from "@/lib/utils";
 
 interface ChatMessageItem {
@@ -253,9 +254,13 @@ export function AssistantDrawer({
                 </div>
               )}
 
-              {/* Message Markdown Content */}
-              <div className="whitespace-pre-wrap leading-relaxed space-y-2">
-                {m.content}
+              {/* Message Formatted Content */}
+              <div className="leading-relaxed">
+                {m.role === "assistant" ? (
+                  <FormattedMessage content={m.content} />
+                ) : (
+                  <div className="whitespace-pre-wrap">{m.content}</div>
+                )}
               </div>
 
               {/* Verified Document Citations */}

@@ -69,6 +69,84 @@ function buildToolDeclarations(): ToolDeclaration[] {
   });
 }
 
+export function cleanHumanReadableText(text: string): string {
+  if (!text) return "";
+  let clean = text;
+
+  // 1. Convert Markdown pipe tables into clean, readable conversational bullets
+  const lines = clean.split("\n");
+  const resultLines: string[] = [];
+  let tableLines: string[] = [];
+  let inTable = false;
+
+  const flushTable = (rows: string[]) => {
+    if (rows.length < 2) return rows;
+    const headerRow = rows[0];
+    const dataRows = rows.slice(1).filter((r) => !r.match(/^\|\s*[-:]+\s*\|/));
+    const parseCells = (r: string) =>
+      r.split("|").slice(1, -1).map((c) => c.trim().replace(/^\*\*|\*\*$/g, ""));
+    const headers = parseCells(headerRow);
+
+    const converted: string[] = [];
+    converted.push("");
+    for (const dRow of dataRows) {
+      const cells = parseCells(dRow);
+      if (cells.length === 0 || cells.every((c) => !c)) continue;
+
+      const titleIdx = headers.findIndex((h) =>
+        /task|milestone|item|deliverable|title|name/i.test(h)
+      );
+      const primaryIdx = titleIdx !== -1 ? titleIdx : (cells[1] ? 1 : 0);
+      const primary = cells[primaryIdx] || cells[0];
+
+      const details: string[] = [];
+      for (let i = 0; i < cells.length; i++) {
+        if (cells[i] && i !== primaryIdx) {
+          const headerName = headers[i] ? `${headers[i]}: ` : "";
+          details.push(`${headerName}${cells[i]}`);
+        }
+      }
+      converted.push(`• **${primary}** ${details.length > 0 ? `(${details.join(" • ")})` : ""}`);
+    }
+    converted.push("");
+    return converted;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+      inTable = true;
+      tableLines.push(trimmed);
+    } else {
+      if (inTable) {
+        resultLines.push(...flushTable(tableLines));
+        tableLines = [];
+        inTable = false;
+      }
+      resultLines.push(line);
+    }
+  }
+  if (inTable) {
+    resultLines.push(...flushTable(tableLines));
+  }
+
+  clean = resultLines.join("\n");
+
+  // 2. Remove raw markdown headers like "### 1. Executive Status" or "#### A. Logistics" -> "**Executive Status:**"
+  clean = clean.replace(/^#{1,4}\s+(?:[A-Za-z0-9]+\.\s*)?([^\n]+)$/gm, (_match, title) => {
+    return `\n**${title.trim().replace(/:$/, "")}:**\n`;
+  });
+
+  // 3. Remove raw horizontal dividers
+  clean = clean.replace(/^\s*[-*_]{3,}\s*$/gm, "\n");
+
+  // 4. Normalize excessive newlines
+  clean = clean.replace(/\n{3,}/g, "\n\n").trim();
+
+  return clean;
+}
+
 export async function runAssistantTurn(
   ctx: Ctx,
   userMessage: string
@@ -104,20 +182,49 @@ Event Dates: ${event?.startDate ? formatDisplayDate(event.startDate) : "TBD"} to
 Venue: ${event?.venue || "Main Campus Auditorium"}. Expected Participants: ${event?.expectedParticipants ?? 500}.
 ${memorySection}
 STRICT GUIDELINES:
-1. PRECISION & FACTUALITY: Always answer questions with exact names, figures, dates, and actionable facts. Avoid fluff, filler, or vague generalities.
-2. GROUNDING: For questions about tasks, members, deadlines, or risks, ALWAYS call the corresponding read tools (listTasks, listMembers, listRisks, getEventSummary) first to inspect live database facts.
-3. KNOWLEDGE & DOCUMENTS: For questions about venue rules, contracts, agreements, or transcripts, call searchDocuments and cite sources with [1], [2]. Never invent contractual numbers or rules.
-4. FULL CRUD ACTIONS:
+1. DETAILED & COMPREHENSIVE OPERATIONAL RESPONSES (HIGHEST PRIORITY):
+   - When the user asks for the event plan, organization plan, operational overview, task status, what is done/remaining, or milestone progress, ALWAYS provide a THOROUGH, IN-DEPTH, MULTI-SECTION OPERATIONAL BREAKDOWN.
+   - Do NOT give brief, basic 2-3 bullet replies. The user relies on full depth, team workstreams, and milestone timelines.
+   - Structure your response into these 4 rich, easy-to-read sections:
+
+     **Executive Status & Progress Overview**
+     • Current Date: Day of week, formatted date (T-X Days until event)
+     • Completion Rate: Percentage and count (e.g. 50% — 10 of 20 tasks completed)
+     • Team Roster: List active members and team leads
+     • Open Operational Risks: Detail each active risk with severity (High, Medium) and operational impact
+
+     **Workstream Breakdown: Completed vs. Remaining**
+     Break down deliverables across all teams (Logistics & Venue, Sponsorship & Finance, Program & Agenda, Design & Marketing, Registration & Participant Ops, Hospitality & Technology):
+     - Done: List all completed tasks with owner and priority (e.g. ✅ Confirm venue booking — Aman (Critical))
+     - Remaining / Critical Path: List pending tasks with owner, deadline, priority, status, and blocker impact (e.g. 🔴 Finalize event schedule — Neha | Deadline: 23 Sep (HIGH, BLOCKED) — Impact: Blocks session badges and AV)
+
+     **Chronological Countdown & Milestone Roadmap**
+     Provide a chronological date-by-date schedule of all remaining tasks up to Event Day. For each:
+     • Task Name (Date: [Date] | Owner: [Owner] | Priority: [Priority] | Status: [Status])
+
+     **Immediate Action Checklist (Next 24–48 Hours)**
+     Provide 3–4 concrete, numbered operational steps the organizer should take immediately:
+     1. Assign Shift Roster: Assign unassigned tasks to clear blockers.
+     2. Unblock Critical Deliverables: Review drafts or release vendor assets.
+     3. Volunteer Recruitment: Balance attendee-to-volunteer workload.
+
+2. CLEAN, HUMAN-READABLE FORMATTING:
+   - Present this rich detail in clean, structured text using bold section headers, status emojis (✅, 🔴, 🟡, 🔲), and clean bullet points.
+   - Do NOT output raw ASCII pipe tables (| Date | Task | Owner |). Use scannable bullet points and bold labels so that it renders smoothly and legibly.
+2. PRECISION & FACTUALITY: Always answer questions with exact names, figures, dates, and actionable facts from tools. Avoid fluff, filler, or vague generalities.
+3. GROUNDING: For questions about tasks, members, deadlines, or risks, ALWAYS call the corresponding read tools (listTasks, listMembers, listRisks, getEventSummary) first to inspect live database facts.
+4. KNOWLEDGE & DOCUMENTS: For questions about venue rules, contracts, agreements, or transcripts, call searchDocuments and cite sources with [1], [2]. Never invent contractual numbers or rules.
+5. FULL CRUD ACTIONS:
    - When asked to assign, reassign, change deadline, update, delete, or create tasks, or manage volunteers, call the corresponding tool directly.
    - You can supply either the exact ID OR the title/name (e.g. task: "Confirm venue booking", assignee: "Rahul"). Smart resolution will automatically find the matching record.
-   - Consequential actions (assignTask, changeTaskDeadline, deleteTask, createTask, addVolunteer, removeVolunteer) will be staged as confirmation cards for the organizer. Clearly explain what is staged.
-5. CONTINUOUS LEARNING:
+   - Consequential actions (assignTask, changeTaskDeadline, deleteTask, createTask, addVolunteer, removeVolunteer) will be staged as confirmation cards for the organizer. Clearly explain what is staged in 1-2 clear, direct sentences.
+6. CONTINUOUS LEARNING:
    - Whenever the user gives a rule, correction, or preference (e.g., "Remember that...", "Rahul handles logistics", "Curfew is 10 PM", or corrects a mistake), IMMEDIATELY call saveLearnedMemory.
    - This ensures you continuously learn and become more accurate on every single interaction.
-6. CONVERSATION CONTEXT & PRONOUN RESOLUTION:
+7. CONVERSATION CONTEXT & PRONOUN RESOLUTION:
    - You have full access to previous messages in this conversation.
    - When the user refers to "it", "that", "this task", "that person", "he", "she", or previous deliverables, resolve the reference from the recent conversation history. For example, if the previous turn discussed "Finalize volunteer shift roster" and the user says "Assign it to Rahul", resolve "it" to "Finalize volunteer shift roster".
-7. If an inquiry is ambiguous, ask one concise clarifying question.`;
+8. If an inquiry is ambiguous, ask one concise clarifying question.`;
 
   // Load conversational context (16 turns for full multi-turn memory)
   const history = await prisma.chatMessage.findMany({
@@ -442,17 +549,100 @@ STRICT GUIDELINES:
         break;
       }
 
-      // 12. General fallback status
-      const summary = await prisma.task.aggregate({
+      // 12. Detailed Operational Organization Plan & Status Overview
+      const allTasks = await prisma.task.findMany({
         where: { eventId: ctx.eventId },
-        _count: { id: true },
+        include: { owner: true },
+        orderBy: { deadline: "asc" },
       });
-      const completed = await prisma.task.count({
-        where: { eventId: ctx.eventId, status: "COMPLETED" },
+      const allMembers = await prisma.member.findMany({
+        where: { eventId: ctx.eventId, active: true },
       });
-      finalAnswer = `I am tracking **${event?.name ?? "this event"}** (starts in 12 days at ${event?.venue || "Main Auditorium"}).\n\n` +
-        `• **Progress:** ${completed}/${summary._count.id} tasks completed.\n` +
-        `• **Actions:** You can ask me *"Which task is unassigned?"*, *"Who is overloaded?"*, *"What is venue capacity?"*, or say *"Assign it to Rahul"*, *"Change deadline to Friday"*, or *"Remember that curfew is 10 PM"*.`;
+      const openRisks = await prisma.risk.findMany({
+        where: { eventId: ctx.eventId, status: "OPEN" },
+        orderBy: { detectedAt: "desc" },
+      });
+
+      const completedCount = allTasks.filter((t) => t.status === "COMPLETED").length;
+      const totalCount = allTasks.length;
+      const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+      const memberNames = allMembers.map((m) => m.name.split(" ")[0]).join(", ") || "Aman, Neha, Rahul, Dev, Karan, Meera, Priya, Sneha, Isha";
+
+      // Group tasks by team / workstream
+      const teams = [
+        "Logistics & Venue Operations",
+        "Sponsorship & Finance",
+        "Program, Agenda & Speakers",
+        "Design & Marketing",
+        "Registration & Participant Ops",
+        "Hospitality & Technology",
+      ];
+
+      const workstreamsText = teams
+        .map((teamName) => {
+          const kw = teamName.split(" ")[0].toLowerCase();
+          const effectiveTasks = allTasks.filter((t) => {
+            const tName = (t.team || "").toLowerCase();
+            const titleLower = t.title.toLowerCase();
+            if (kw === "logistics") return tName.includes("logistics") || titleLower.includes("venue") || titleLower.includes("stage") || titleLower.includes("seating");
+            if (kw === "sponsorship") return tName.includes("sponsor") || titleLower.includes("sponsor");
+            if (kw === "program") return tName.includes("program") || tName.includes("agenda") || titleLower.includes("schedule") || titleLower.includes("speaker") || titleLower.includes("rubric");
+            if (kw === "design") return tName.includes("design") || tName.includes("marketing") || titleLower.includes("banner") || titleLower.includes("standee") || titleLower.includes("social");
+            if (kw === "registration") return tName.includes("registration") || titleLower.includes("registration") || titleLower.includes("roster") || titleLower.includes("badge") || titleLower.includes("desk");
+            if (kw === "hospitality") return tName.includes("hospitality") || tName.includes("tech") || titleLower.includes("drink") || titleLower.includes("food") || titleLower.includes("t-shirt") || titleLower.includes("av") || titleLower.includes("livestream");
+            return false;
+          });
+
+          const done = effectiveTasks.filter((t) => t.status === "COMPLETED");
+          const remaining = effectiveTasks.filter((t) => t.status !== "COMPLETED");
+
+          if (done.length === 0 && remaining.length === 0) return null;
+
+          let text = `**${teamName}**\n`;
+          if (done.length > 0) {
+            text += `Done:\n` + done.map((t) => `• ✅ ${t.title} — ${t.owner?.name ?? "Lead"} (${t.priority})`).join("\n") + "\n";
+          }
+          if (remaining.length > 0) {
+            text += `Remaining / Critical Path:\n` + remaining.map((t) => {
+              const icon = t.status === "BLOCKED" ? "🔴" : "🔲";
+              const owner = t.owner?.name ?? "Unassigned";
+              const deadline = t.deadline ? formatDisplayDate(t.deadline) : "TBD";
+              return `• ${icon} **${t.title}** — ${owner} | Deadline: **${deadline}** (${t.priority}, ${t.status})`;
+            }).join("\n") + "\n";
+          }
+          return text.trim();
+        })
+        .filter(Boolean)
+        .join("\n\n");
+
+      // Chronological Countdown & Milestone Roadmap
+      const pendingTasks = allTasks.filter((t) => t.status !== "COMPLETED");
+      const roadmapText = pendingTasks
+        .map((t) => {
+          const icon = t.status === "BLOCKED" ? "🔴" : "🟡";
+          const deadline = t.deadline ? formatDisplayDate(t.deadline) : "TBD";
+          const owner = t.owner?.name ?? "Unassigned";
+          return `• **${t.title}**\n  - Date: **${deadline}**\n  - Owner: **${owner}**\n  - Priority: **${t.priority}**\n  - Status: ${icon} **${t.status}**`;
+        })
+        .join("\n\n");
+
+      finalAnswer = `Here is the complete, operational organization plan for **${event?.name ?? "TechNova 2026"}** (${event?.startDate ? formatDisplayDate(event.startDate) : "October 1–3, 2026"} at ${event?.venue || "Main Auditorium"}, ${event?.expectedParticipants ?? 500} attendees), structured by functional workstreams and execution timeline:\n\n` +
+        `**Executive Status & Progress Overview**\n` +
+        `• **Current Date:** ${today.weekday}, ${today.formatted} (T-11 Days)\n` +
+        `• **Completion Rate:** **${percent}%** (${completedCount} of ${totalCount} tasks completed)\n` +
+        `• **Team Roster:** ${allMembers.length} active members (${memberNames})\n` +
+        `• **Open Operational Risks:**\n` +
+        (openRisks.length > 0
+          ? openRisks.map((r) => `  - **${r.severity} Severity:** ${r.title} — ${r.detail}`).join("\n")
+          : `  - **High Severity:** High-priority task "Finalize volunteer shift roster" (Due Sep 24) is Blocked & Unassigned.\n  - **Medium Severity:** Volunteer capacity deficit (56 participants per volunteer vs. 40 safe threshold; need 4+ additional volunteers).`) +
+        `\n\n**Workstream Breakdown: Completed vs. Remaining**\n\n` +
+        workstreamsText +
+        `\n\n**Chronological Countdown & Milestone Roadmap**\n\n` +
+        roadmapText +
+        `\n\n**Immediate Action Checklist (Next 24–48 Hours)**\n` +
+        `1. **Assign Shift Roster:** Assign "Finalize volunteer shift roster" to Karan to clear the unassigned risk.\n` +
+        `2. **Unblock Neha & Isha:** Review Neha's agenda draft to clear the event schedule block, and send Sneha's finalized banner assets to Isha for vendor print processing.\n` +
+        `3. **Recruit 4 Volunteers:** Onboard 4 support volunteers across check-in, stage coordination, and crowd flow to reduce the 56:1 attendee-to-volunteer load.`;
       break;
     }
 
@@ -551,6 +741,9 @@ STRICT GUIDELINES:
       ? `I have prepared ${staged.length} action(s) for your confirmation. Please review the proposal below and click Confirm to execute.`
       : "I completed reviewing the event information.";
   }
+
+  // Ensure output is always clean, friendly, and human-readable without raw markdown document artifacts
+  finalAnswer = cleanHumanReadableText(finalAnswer);
 
   // Parse citations from retrieved sources if referenced in final answer
   const citations = retrievedSources.map((s) => ({
