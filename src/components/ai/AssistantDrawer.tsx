@@ -167,21 +167,21 @@ export function AssistantDrawer({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-slate-950 border-l border-slate-800 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#0b1329]/95 backdrop-blur-2xl border-l border-[#1c294d] shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
       {/* Drawer Header */}
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 backdrop-blur-md">
+      <div className="p-4 border-b border-[#1c294d] flex items-center justify-between bg-[#131e38]/70 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
-            <Sparkles className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-lg bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec]">
+            <Sparkles className="w-4 h-4 text-[#b9a8ec]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
+            <h3 className="text-sm font-semibold text-[#f8fafc] flex items-center gap-1.5">
               ClubOps AI Assistant
-              <span className="text-[10px] font-mono bg-blue-950 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800">
+              <span className="text-[10px] font-mono bg-[#b9a8ec]/15 text-[#b9a8ec] px-1.5 py-0.5 rounded border border-[#b9a8ec]/30">
                 PROD
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">Continuous Memory & Tool Executor</p>
+            <p className="text-[11px] text-[#94a3b8]">Continuous Memory & Tool Executor</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -189,13 +189,13 @@ export function AssistantDrawer({
             onClick={handleClearHistory}
             disabled={clearing}
             title="Clear Chat History"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1c294d] transition-colors cursor-pointer"
           >
-            <RotateCcw className={cn("w-4 h-4", clearing && "animate-spin text-blue-400")} />
+            <RotateCcw className={cn("w-4 h-4", clearing && "animate-spin text-[#b9a8ec]")} />
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1c294d] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -203,12 +203,12 @@ export function AssistantDrawer({
       </div>
 
       {/* Suggested prompts carousel / bar */}
-      <div className="px-4 py-2.5 bg-slate-900/30 border-b border-slate-800/80 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
+      <div className="px-4 py-2.5 bg-[#131e38]/40 border-b border-[#1c294d]/80 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
         {SUGGESTED_PROMPTS.map((p, idx) => (
           <button
             key={idx}
             onClick={() => handleSendMessage(p)}
-            className="text-[11px] px-2.5 py-1 rounded-full bg-slate-800/80 text-slate-300 hover:bg-blue-600/20 hover:text-blue-300 hover:border-blue-500/40 border border-slate-700/60 transition-all cursor-pointer flex-shrink-0"
+            className="text-[11px] px-2.5 py-1 rounded-full bg-[#131e38] text-slate-300 hover:bg-[#b9a8ec]/20 hover:text-[#b9a8ec] hover:border-[#b9a8ec]/40 border border-[#1c294d] transition-all cursor-pointer flex-shrink-0"
           >
             {p}
           </button>
@@ -226,7 +226,7 @@ export function AssistantDrawer({
             )}
           >
             {m.role === "assistant" && (
-              <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex-shrink-0 flex items-center justify-center text-blue-400 mt-0.5">
+              <div className="w-7 h-7 rounded-lg bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex-shrink-0 flex items-center justify-center text-[#b9a8ec] mt-0.5">
                 <Bot className="w-3.5 h-3.5" />
               </div>
             )}
@@ -235,8 +235,8 @@ export function AssistantDrawer({
               className={cn(
                 "rounded-2xl px-4 py-3 max-w-[85%] leading-relaxed",
                 m.role === "user"
-                  ? "bg-blue-600 text-white rounded-tr-none shadow-md"
-                  : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm"
+                  ? "bg-[#b9a8ec] text-[#0b1329] font-medium rounded-tr-none shadow-md"
+                  : "bg-[#131e38] border border-[#1c294d] text-[#f8fafc] rounded-tl-none shadow-sm"
               )}
             >
               {/* Tool Execution Trace Chips */}
@@ -245,9 +245,9 @@ export function AssistantDrawer({
                   {m.toolTrace.map((tr, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-slate-700 text-slate-400"
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-[#0b1329] border border-[#1c294d] text-[#94a3b8]"
                     >
-                      <Wrench className="w-2.5 h-2.5 text-blue-400" />
+                      <Wrench className="w-2.5 h-2.5 text-[#b9a8ec]" />
                       {tr.tool}
                     </span>
                   ))}
@@ -265,14 +265,14 @@ export function AssistantDrawer({
 
               {/* Verified Document Citations */}
               {m.citations && m.citations.length > 0 && (
-                <div className="mt-3 pt-2.5 border-t border-slate-800">
+                <div className="mt-3 pt-2.5 border-t border-[#1c294d]">
                   <CitationList citations={m.citations} />
                 </div>
               )}
 
               {/* Staged Consequential Actions (Human Confirmation Required) */}
               {m.stagedActions && m.stagedActions.length > 0 && (
-                <div className="mt-3.5 pt-3 border-t border-slate-800 space-y-2">
+                <div className="mt-3.5 pt-3 border-t border-[#1c294d] space-y-2">
                   <div className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider">
                     Approval Required (Human-in-the-Loop)
                   </div>
@@ -290,7 +290,7 @@ export function AssistantDrawer({
             </div>
 
             {m.role === "user" && (
-              <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex-shrink-0 flex items-center justify-center text-slate-300 mt-0.5">
+              <div className="w-7 h-7 rounded-lg bg-[#1c294d] border border-[#253766] flex-shrink-0 flex items-center justify-center text-[#b9a8ec] mt-0.5">
                 <User className="w-3.5 h-3.5" />
               </div>
             )}
@@ -299,11 +299,11 @@ export function AssistantDrawer({
 
         {loading && (
           <div className="flex gap-3 text-sm justify-start">
-            <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mt-0.5">
+            <div className="w-7 h-7 rounded-lg bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec] mt-0.5">
               <Bot className="w-3.5 h-3.5" />
             </div>
-            <div className="rounded-2xl rounded-tl-none bg-slate-900 border border-slate-800 px-4 py-3 text-slate-400 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+            <div className="rounded-2xl rounded-tl-none bg-[#131e38] border border-[#1c294d] px-4 py-3 text-[#94a3b8] flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-[#b9a8ec]" />
               <span className="text-xs">Analyzing event state & executing tools...</span>
             </div>
           </div>
@@ -313,7 +313,7 @@ export function AssistantDrawer({
       </div>
 
       {/* Input Field */}
-      <div className="p-3 border-t border-slate-800 bg-slate-900/60 backdrop-blur-md">
+      <div className="p-3 border-t border-[#1c294d] bg-[#131e38]/70 backdrop-blur-md">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -325,14 +325,14 @@ export function AssistantDrawer({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='Ask a question, assign tasks, or say "Remember that..."'
-            className="flex-1 bg-slate-950 border-slate-800 text-sm focus-visible:ring-blue-500"
+            className="flex-1 bg-[#0b1329] border-[#1c294d] text-sm text-[#f8fafc] focus-visible:ring-[#b9a8ec]"
             disabled={loading}
           />
           <Button
             type="submit"
             size="sm"
             disabled={!input.trim() || loading}
-            className="bg-blue-600 hover:bg-blue-500 text-white cursor-pointer px-3"
+            className="bg-[#b9a8ec] hover:bg-[#9b88d8] text-[#0b1329] font-semibold cursor-pointer px-3"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

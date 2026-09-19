@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, RefreshCw, AlertOctagon, AlertTriangle, CheckCircle2, Target } from "lucide-react";
+import { Sparkles, RefreshCw, AlertOctagon, AlertTriangle, CheckCircle2, Target, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -49,44 +49,54 @@ export function HealthSummaryWidget({
 
   const statusConfig = {
     CRITICAL: {
-      label: "CRITICAL STATUS",
+      label: "CRITICAL RISK DETECTED",
+      sub: "Blocking dependencies or severe volunteer burnout requires immediate action",
       icon: AlertOctagon,
       badge: "bg-rose-950/80 text-rose-300 border-rose-800",
+      pill: "bg-rose-500",
       glow: "glow-critical",
     },
     AT_RISK: {
-      label: "AT RISK",
+      label: "ELEVATED RISK LEVEL",
+      sub: "Upcoming tight deadlines or unassigned high-priority deliverables require attention",
       icon: AlertTriangle,
       badge: "bg-amber-950/80 text-amber-300 border-amber-800",
+      pill: "bg-amber-500",
       glow: "",
     },
     ON_TRACK: {
-      label: "ON TRACK",
+      label: "ALL SYSTEMS NOMINAL",
+      sub: "Deliverables on schedule, dependency chain clear, and volunteer load balanced",
       icon: CheckCircle2,
-      badge: "bg-emerald-950/80 text-emerald-300 border-emerald-800",
-      glow: "",
+      badge: "bg-[#87a997]/15 text-[#87a997] border-[#87a997]/30",
+      pill: "bg-[#87a997]",
+      glow: "glow-sage",
     },
   }[status];
 
   const StatusIcon = statusConfig.icon;
 
   return (
-    <Card className={cn("p-5 border border-slate-800 bg-gradient-to-b from-slate-900/90 to-slate-950/80", statusConfig.glow)}>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400">
-            <Sparkles className="w-5 h-5 text-blue-400" />
+    <Card className={cn("p-6 sm:p-7 rounded-2xl border border-[#1c294d] bg-[#131e38]/85 shadow-xl backdrop-blur-md", statusConfig.glow)}>
+      {/* Widget Header Strip */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-6 border-b border-[#1c294d]">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec] flex-shrink-0 shadow-inner">
+            <Sparkles className="w-6 h-6 text-[#b9a8ec]" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white">Event Health & Focus Center</h3>
-              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1", statusConfig.badge)}>
-                <StatusIcon className="w-3 h-3" />
+
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h3 className="text-base font-bold text-[#f8fafc] tracking-tight">
+                Event Health & Autonomous Focus Center
+              </h3>
+              <span className={cn("text-xs font-semibold px-3 py-1 rounded-full border flex items-center gap-1.5", statusConfig.badge)}>
+                <StatusIcon className="w-3.5 h-3.5" />
                 {statusConfig.label}
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Deterministic risk reconciliation with AI-synthesized mitigation priorities
+            <p className="text-xs text-[#94a3b8] max-w-2xl leading-relaxed">
+              {statusConfig.sub}
             </p>
           </div>
         </div>
@@ -96,34 +106,42 @@ export function HealthSummaryWidget({
           variant="outline"
           onClick={handleGenerateSummary}
           disabled={loading}
-          className="border-slate-700 hover:bg-slate-800 text-slate-200 text-xs gap-1.5 h-8"
+          className="border-[#1c294d] hover:bg-[#1c294d] text-slate-200 text-xs gap-2 h-9 px-4 rounded-xl flex-shrink-0 cursor-pointer"
         >
-          <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin text-blue-400")} />
-          {summary ? "Refresh Analysis" : "Synthesize AI Health Insights"}
+          <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin text-[#b9a8ec]")} />
+          <span>{summary ? "Refresh AI Synthesis" : "Run AI Health Synthesis"}</span>
         </Button>
       </div>
 
-      <div className="pt-4">
+      {/* Synthesis Content or Empty State */}
+      <div className="pt-6">
         {summary ? (
-          <div className="space-y-4">
-            <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-sm font-medium text-slate-200 leading-relaxed">
-              {summary.headline}
+          <div className="space-y-5">
+            <div className="p-4 rounded-xl bg-[#0b1329]/90 border border-[#1c294d] text-sm font-medium text-[#f8fafc] leading-relaxed flex items-start gap-3">
+              <div className="w-2 h-2 rounded-full bg-[#b9a8ec] mt-2 flex-shrink-0" />
+              <div className="flex-1">{summary.headline}</div>
             </div>
 
             {summary.focus && summary.focus.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {summary.focus.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 space-y-1.5 text-xs"
+                    className="p-4 rounded-xl bg-[#0b1329]/70 border border-[#1c294d] hover:border-[#b9a8ec]/40 transition-all space-y-2.5 text-xs flex flex-col justify-between"
                   >
-                    <div className="font-semibold text-white flex items-center gap-1.5">
-                      <Target className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                      <span className="truncate">{item.title}</span>
+                    <div className="space-y-1.5">
+                      <div className="font-bold text-[#f8fafc] flex items-center gap-2">
+                        <Target className="w-4 h-4 text-[#b9a8ec] flex-shrink-0" />
+                        <span className="truncate">{item.title}</span>
+                      </div>
+                      <p className="text-[#94a3b8] text-[11px] leading-relaxed">
+                        {item.why}
+                      </p>
                     </div>
-                    <p className="text-slate-400 text-[11px] leading-relaxed">{item.why}</p>
-                    <div className="pt-1 text-[11px] text-blue-300 font-medium">
-                      Action: {item.suggestedAction}
+
+                    <div className="pt-2 border-t border-[#1c294d]/70 text-[11px] text-[#b9a8ec] font-semibold flex items-center justify-between">
+                      <span className="truncate">Action: {item.suggestedAction}</span>
+                      <ArrowRight className="w-3.5 h-3.5 flex-shrink-0 ml-1 opacity-75" />
                     </div>
                   </div>
                 ))}
@@ -131,10 +149,18 @@ export function HealthSummaryWidget({
             )}
           </div>
         ) : (
-          <div className="py-2 flex items-center justify-between text-xs text-slate-400">
+          <div className="py-4 px-5 rounded-xl bg-[#0b1329]/50 border border-dashed border-[#1c294d] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94a3b8]">
             <span>
-              Health status is deterministically evaluated as <strong className="text-slate-200">{status}</strong> based on active risks. Click the button to synthesize recommended focus areas.
+              Health status is currently evaluated as <strong className="text-[#f8fafc]">{status}</strong> based on live risk telemetry. Run AI synthesis to generate real-time mitigation suggestions.
             </span>
+            <Button
+              size="sm"
+              onClick={handleGenerateSummary}
+              disabled={loading}
+              className="bg-[#b9a8ec] hover:bg-[#9b88d8] text-[#0b1329] font-semibold text-xs h-8 px-3 rounded-lg flex-shrink-0 cursor-pointer"
+            >
+              Synthesize Insights
+            </Button>
           </div>
         )}
       </div>

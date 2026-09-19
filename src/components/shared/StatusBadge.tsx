@@ -20,14 +20,14 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     case "COMPLETED":
       return (
         <Badge variant="success" className="gap-1 text-[11px] font-medium">
-          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+          <CheckCircle2 className="w-3 h-3 text-[#87a997]" />
           Completed
         </Badge>
       );
     case "IN_PROGRESS":
       return (
         <Badge variant="default" className="gap-1 text-[11px] font-medium">
-          <Clock className="w-3 h-3 text-blue-400 animate-spin" />
+          <Clock className="w-3 h-3 text-[#0b1329] animate-spin" />
           In Progress
         </Badge>
       );
@@ -41,8 +41,8 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     case "TODO":
     default:
       return (
-        <Badge variant="secondary" className="gap-1 text-[11px] text-slate-300">
-          <Circle className="w-3 h-3 text-slate-500" />
+        <Badge variant="secondary" className="gap-1 text-[11px] text-[#94a3b8]">
+          <Circle className="w-3 h-3 text-[#94a3b8]" />
           To Do
         </Badge>
       );

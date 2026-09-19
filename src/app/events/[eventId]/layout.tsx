@@ -46,7 +46,7 @@ export default function EventLayout({
   }, [eventId]);
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex">
+    <div className="min-h-screen bg-[#0b1329]/90 text-[#f8fafc] flex">
       {/* Sidebar */}
       <AppSidebar
         eventId={eventId}
@@ -62,7 +62,7 @@ export default function EventLayout({
           onOpenAssistant={() => setAssistantOpen(true)}
         />
 
-        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <main className="flex-1 p-6 sm:p-8 lg:p-10 max-w-7xl w-full mx-auto space-y-8">
           {children}
         </main>
       </div>

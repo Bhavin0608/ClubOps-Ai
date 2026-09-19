@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Shield, Sparkles, Loader2, UserCheck, KeyRound } from "lucide-react";
+import { Shield, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -42,23 +42,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0b1329]/90 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-xl shadow-blue-500/25 text-white mb-2">
-            <Shield className="w-6 h-6" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#b9a8ec] to-[#9b88d8] shadow-xl shadow-[#b9a8ec]/25 text-[#0b1329] mb-2">
+            <Shield className="w-6 h-6 text-[#0b1329]" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">ClubOps AI</h1>
-          <p className="text-xs text-slate-400">
+          <h1 className="text-2xl font-bold text-[#f8fafc] tracking-tight">ClubOps AI</h1>
+          <p className="text-xs text-[#94a3b8]">
             Autonomous operations command center for collegiate events
           </p>
         </div>
 
         {/* Demo Fast Logins for Hackathon Judges */}
-        <div className="p-3.5 rounded-xl bg-slate-900/90 border border-blue-500/30 space-y-2.5">
-          <div className="text-xs font-semibold text-blue-300 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+        <div className="p-3.5 rounded-xl bg-[#131e38] border border-[#b9a8ec]/30 space-y-2.5">
+          <div className="text-xs font-semibold text-[#b9a8ec] flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#b9a8ec]" />
             Hackathon Demo Logins (1-Click)
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -67,10 +67,10 @@ export default function LoginPage() {
               variant="outline"
               size="sm"
               onClick={() => fillDemoLogin("organizer@clubops.demo")}
-              className="border-slate-700 bg-slate-950/80 hover:bg-slate-800 text-xs text-left h-auto py-2 flex flex-col items-start"
+              className="border-[#1c294d] bg-[#0b1329]/80 hover:bg-[#1c294d] text-xs text-left h-auto py-2 flex flex-col items-start cursor-pointer"
             >
-              <span className="font-semibold text-white">Aman (Lead)</span>
-              <span className="text-[10px] text-blue-400">Organizer Role</span>
+              <span className="font-semibold text-[#f8fafc]">Aman (Lead)</span>
+              <span className="text-[10px] text-[#b9a8ec]">Organizer Role</span>
             </Button>
 
             <Button
@@ -78,16 +78,16 @@ export default function LoginPage() {
               variant="outline"
               size="sm"
               onClick={() => fillDemoLogin("rahul@clubops.demo")}
-              className="border-slate-700 bg-slate-950/80 hover:bg-slate-800 text-xs text-left h-auto py-2 flex flex-col items-start"
+              className="border-[#1c294d] bg-[#0b1329]/80 hover:bg-[#1c294d] text-xs text-left h-auto py-2 flex flex-col items-start cursor-pointer"
             >
-              <span className="font-semibold text-white">Rahul</span>
-              <span className="text-[10px] text-purple-400">Volunteer Role</span>
+              <span className="font-semibold text-[#f8fafc]">Rahul</span>
+              <span className="text-[10px] text-[#87a997]">Volunteer Role</span>
             </Button>
           </div>
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleLogin} className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4 shadow-xl">
+        <form onSubmit={handleLogin} className="p-6 rounded-2xl bg-[#131e38]/85 border border-[#1c294d] space-y-4 shadow-xl backdrop-blur-md">
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-slate-300">Email Address</label>
             <Input
@@ -95,7 +95,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="organizer@clubops.demo"
-              className="bg-slate-950 border-slate-700 text-sm"
+              className="bg-[#0b1329] border-[#1c294d] text-sm text-[#f8fafc]"
               required
             />
           </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="bg-slate-950 border-slate-700 text-sm"
+              className="bg-[#0b1329] border-[#1c294d] text-sm text-[#f8fafc]"
               required
             />
           </div>
@@ -115,7 +115,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs h-10 mt-2"
+            className="w-full bg-[#b9a8ec] hover:bg-[#9b88d8] text-[#0b1329] font-semibold text-xs h-10 mt-2 cursor-pointer shadow-lg shadow-[#b9a8ec]/20"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
             Sign In to Command Center
@@ -124,9 +124,9 @@ export default function LoginPage() {
           <div className="text-center pt-2">
             <Link
               href="/register"
-              className="text-xs text-slate-400 hover:text-blue-400 transition-colors"
+              className="text-xs text-[#94a3b8] hover:text-[#b9a8ec] transition-colors"
             >
-              Don&apos;t have an account? <span className="text-blue-400 font-medium">Create one</span>
+              Don&apos;t have an account? <span className="text-[#b9a8ec] font-medium">Create one</span>
             </Link>
           </div>
         </form>

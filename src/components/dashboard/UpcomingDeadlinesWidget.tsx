@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DeadlinePill } from "@/components/shared/DeadlinePill";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2 } from "lucide-react";
 
 interface TaskItem {
   id: string;
@@ -21,37 +21,51 @@ export function UpcomingDeadlinesWidget({
   tasks: TaskItem[];
 }) {
   return (
-    <Card className="border-slate-800">
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-sm font-semibold text-white flex items-center gap-2">
-          <Clock className="w-4 h-4 text-blue-400" />
-          Upcoming Deadlines
+    <Card className="border-[#1c294d] bg-[#131e38]/85 shadow-lg rounded-2xl p-6">
+      <CardHeader className="p-0 flex flex-row items-center justify-between pb-5 border-b border-[#1c294d]">
+        <CardTitle className="text-sm font-bold text-[#f8fafc] flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec]">
+            <Clock className="w-3.5 h-3.5 text-[#b9a8ec]" />
+          </div>
+          <span>Upcoming Deadlines & Milestones</span>
         </CardTitle>
         <Link
           href={`/events/${eventId}/deadlines`}
-          className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium"
+          className="text-xs text-[#b9a8ec] hover:text-[#9b88d8] flex items-center gap-1 font-semibold transition-colors group"
         >
-          View all <ArrowRight className="w-3 h-3" />
+          <span>View all ({tasks.length})</span>
+          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </Link>
       </CardHeader>
-      <CardContent className="space-y-2.5">
+
+      <CardContent className="p-0 pt-5 space-y-3">
         {tasks.length === 0 ? (
-          <div className="text-center py-6 text-xs text-slate-400">
-            No upcoming deadlines recorded
+          <div className="text-center py-8 px-4 rounded-xl bg-[#0b1329]/40 border border-dashed border-[#1c294d] text-xs text-[#94a3b8] flex flex-col items-center gap-2">
+            <CheckCircle2 className="w-6 h-6 text-[#87a997]" />
+            <span className="font-semibold text-[#f8fafc]">No pending urgent deadlines</span>
+            <span className="text-[11px] text-[#94a3b8]">All items scheduled for the next window are completed.</span>
           </div>
         ) : (
           tasks.map((t) => (
             <div
               key={t.id}
-              className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-3 text-xs"
+              className="p-3.5 rounded-xl bg-[#0b1329]/70 border border-[#1c294d] hover:border-[#b9a8ec]/35 transition-all flex items-center justify-between gap-4 text-xs shadow-sm"
             >
               <div className="truncate flex-1">
-                <div className="font-medium text-slate-200 truncate">{t.title}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
-                  {t.owner?.name ? `${t.owner.name} (${t.owner.team || "General"})` : "Unassigned"}
+                <div className="font-semibold text-[#f8fafc] truncate text-xs">{t.title}</div>
+                <div className="text-[11px] text-[#94a3b8] mt-1 flex items-center gap-2">
+                  <span className="font-medium text-slate-300">
+                    {t.owner?.name ? t.owner.name : "Unassigned"}
+                  </span>
+                  {t.owner?.team && (
+                    <span className="font-mono text-[10px] bg-[#131e38] px-1.5 py-0.2 rounded border border-[#1c294d]">
+                      {t.owner.team}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+
+              <div className="flex items-center gap-2.5 flex-shrink-0">
                 <DeadlinePill deadline={t.deadline} showExactDate={false} />
                 <StatusBadge status={t.status} />
               </div>

@@ -15,7 +15,7 @@ import {
   Megaphone,
   Sparkles,
   Shield,
-  Layers,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,94 +32,124 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
 
-  const organizerLinks = [
+  const operationsLinks = [
     { label: "Dashboard", href: `/events/${eventId}`, icon: LayoutDashboard },
-    { label: "Tasks", href: `/events/${eventId}/tasks`, icon: CheckSquare },
-    { label: "Deadlines", href: `/events/${eventId}/deadlines`, icon: Clock },
-    { label: "Volunteers", href: `/events/${eventId}/volunteers`, icon: Users },
-    { label: "Meetings", href: `/events/${eventId}/meetings`, icon: Video },
-    { label: "Documents", href: `/events/${eventId}/documents`, icon: FileText },
-    { label: "Risks", href: `/events/${eventId}/risks`, icon: AlertTriangle },
+    { label: "Tasks & Workflows", href: `/events/${eventId}/tasks`, icon: CheckSquare },
+    { label: "Deadlines & Milestones", href: `/events/${eventId}/deadlines`, icon: Clock },
+  ];
+
+  const collaborationLinks = [
+    { label: "Volunteers & Roster", href: `/events/${eventId}/volunteers`, icon: Users },
+    { label: "Meeting Notes & AI", href: `/events/${eventId}/meetings`, icon: Video },
     { label: "Announcements", href: `/events/${eventId}/announcements`, icon: Megaphone },
+  ];
+
+  const governanceLinks = [
+    { label: "Documents & Specs", href: `/events/${eventId}/documents`, icon: FileText },
+    { label: "Risk Center", href: `/events/${eventId}/risks`, icon: AlertTriangle },
   ];
 
   const volunteerLinks = [
-    { label: "My Tasks", href: `/events/${eventId}/my-tasks`, icon: CheckSquare },
+    { label: "My Assigned Tasks", href: `/events/${eventId}/my-tasks`, icon: CheckSquare },
     { label: "Announcements", href: `/events/${eventId}/announcements`, icon: Megaphone },
   ];
 
-  const links = role === "VOLUNTEER" ? volunteerLinks : organizerLinks;
+  const renderNavGroup = (title: string, items: typeof operationsLinks) => (
+    <div className="space-y-1.5">
+      <div className="text-[10px] font-bold text-[#94a3b8]/80 uppercase tracking-wider px-3 mb-1">
+        {title}
+      </div>
+      {items.map((item) => {
+        const isActive = pathname === item.href;
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all",
+              isActive
+                ? "bg-[#b9a8ec]/15 text-[#b9a8ec] border border-[#b9a8ec]/35 font-semibold shadow-sm shadow-[#b9a8ec]/5"
+                : "text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1c294d]/60"
+            )}
+          >
+            <Icon
+              className={cn(
+                "w-4 h-4 flex-shrink-0 transition-transform",
+                isActive ? "text-[#b9a8ec] scale-105" : "text-[#94a3b8]"
+              )}
+            />
+            <span className="truncate">{item.label}</span>
+          </Link>
+        );
+      })}
+    </div>
+  );
 
   return (
-    <aside className="w-64 border-r border-slate-800 bg-slate-950 flex flex-col h-screen fixed top-0 left-0 z-30">
+    <aside className="w-64 border-r border-[#1c294d] bg-[#0b1329]/95 backdrop-blur-2xl flex flex-col h-screen fixed top-0 left-0 z-30 shadow-2xl">
       {/* Brand & Logo */}
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div className="p-4 border-b border-[#1c294d] flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
-            <Shield className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#b9a8ec] to-[#9b88d8] flex items-center justify-center text-[#0b1329] font-bold shadow-lg shadow-[#b9a8ec]/20">
+            <Shield className="w-5 h-5 text-[#0b1329]" />
           </div>
           <div>
-            <div className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
+            <div className="text-sm font-bold text-[#f8fafc] tracking-tight flex items-center gap-1.5">
               ClubOps AI
-              <span className="text-[10px] font-mono bg-blue-900/60 text-blue-300 px-1 py-0.2 rounded border border-blue-700/60">
+              <span className="text-[10px] font-mono bg-[#b9a8ec]/15 text-[#b9a8ec] px-1.5 py-0.5 rounded border border-[#b9a8ec]/30 font-semibold">
                 v1.0
               </span>
             </div>
-            <div className="text-[10px] text-slate-400">Mission Control</div>
+            <div className="text-[11px] text-[#94a3b8]">Autonomous Operations</div>
           </div>
         </div>
       </div>
 
-      {/* Event Switcher */}
-      <div className="p-3 border-b border-slate-800/80">
+      {/* Switcher & Back to Workspaces */}
+      <div className="p-3 border-b border-[#1c294d]/80 space-y-2">
+        <Link
+          href="/events"
+          className="flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium text-[#94a3b8] hover:text-[#b9a8ec] transition-colors group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          <span>All Workspaces</span>
+        </Link>
         <EventSwitcher currentEventId={eventId} />
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
-          Operations
-        </div>
-        {links.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
-                isActive
-                  ? "bg-blue-600/15 text-blue-400 border border-blue-500/30"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
-              )}
-            >
-              <Icon className={cn("w-4 h-4", isActive ? "text-blue-400" : "text-slate-400")} />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+      {/* Navigation Sections */}
+      <nav className="flex-1 p-3.5 space-y-5 overflow-y-auto">
+        {role === "VOLUNTEER" ? (
+          renderNavGroup("Operations", volunteerLinks)
+        ) : (
+          <>
+            {renderNavGroup("Operations", operationsLinks)}
+            {renderNavGroup("Team & Comms", collaborationLinks)}
+            {renderNavGroup("Governance & Risk", governanceLinks)}
+          </>
+        )}
       </nav>
 
       {/* AI Assistant Quick Trigger (Organizer only) */}
       {role === "ORGANIZER" && (
-        <div className="p-3 border-t border-slate-800/80">
+        <div className="p-3.5 border-t border-[#1c294d]/80 bg-[#131e38]/40">
           <button
             onClick={onOpenAssistant}
-            className="w-full p-2.5 rounded-xl bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 border border-blue-500/40 hover:border-blue-400 text-left transition-all group flex items-center justify-between"
+            className="w-full p-3 rounded-xl bg-gradient-to-r from-[#b9a8ec]/15 via-[#9b88d8]/15 to-[#87a997]/15 border border-[#b9a8ec]/35 hover:border-[#b9a8ec]/70 hover:shadow-lg hover:shadow-[#b9a8ec]/10 text-left transition-all group flex items-center justify-between cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md">
-                <Sparkles className="w-4 h-4 animate-pulse" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#b9a8ec] flex items-center justify-center text-[#0b1329] shadow-md shadow-[#b9a8ec]/25 group-hover:scale-105 transition-transform">
+                <Sparkles className="w-4 h-4 text-[#0b1329] animate-pulse" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-white group-hover:text-blue-300">
-                  AI Assistant
+                <div className="text-xs font-bold text-[#f8fafc] group-hover:text-[#b9a8ec] transition-colors">
+                  AI Command Center
                 </div>
-                <div className="text-[10px] text-slate-400">Open Command Drawer</div>
+                <div className="text-[10px] text-[#94a3b8]">Ask anything & execute</div>
               </div>
             </div>
-            <div className="text-[10px] font-mono text-slate-400 bg-slate-900/80 px-1.5 py-0.5 rounded border border-slate-800">
+            <div className="text-[10px] font-mono text-[#94a3b8] bg-[#0b1329] px-2 py-0.5 rounded border border-[#1c294d]">
               ⌘K
             </div>
           </button>
