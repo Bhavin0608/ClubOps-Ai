@@ -160,7 +160,8 @@ export function TaskListTable({
                 </tr>
               ) : (
                 filteredTasks.map((t) => {
-                  const canEditStatus = !isVolunteer || t.owner?.id === currentMemberId;
+                  const isAssignedCompleted = Boolean(t.owner && t.status === "COMPLETED");
+                  const canEditStatus = (!isVolunteer || t.owner?.id === currentMemberId) && !isAssignedCompleted;
                   const prereqCount = t.prerequisites?.length ?? 0;
                   const dependentCount = t.dependents?.length ?? 0;
 

@@ -228,6 +228,11 @@ export const taskService = {
       if (!member) throw new ValidationError("Owner must be an active member of this event");
     }
 
+    // Constraint: An assigned task that is deemed completed cannot be changed to any other status
+    if (before.ownerId && before.status === "COMPLETED" && input.status && input.status !== "COMPLETED") {
+      throw new ValidationError("A task that is assigned and completed cannot be changed to another status");
+    }
+
     // BR-5: CompletedAt tracking
     let completedAt: Date | null = before.completedAt;
     if (input.status === "COMPLETED" && before.status !== "COMPLETED") {
