@@ -31,6 +31,15 @@ export default function TasksPage(props: {
 
   useEffect(() => {
     fetchData();
+
+    const handleActionResolved = () => {
+      fetchData();
+    };
+
+    window.addEventListener("clubops:action-resolved", handleActionResolved);
+    return () => {
+      window.removeEventListener("clubops:action-resolved", handleActionResolved);
+    };
   }, [eventId]);
 
   if (loading) return <LoadingState message="Loading event tasks..." />;

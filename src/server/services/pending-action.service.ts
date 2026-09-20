@@ -125,4 +125,39 @@ export const pendingActionService = {
       },
     });
   },
+
+  async confirmAll(ctx: Ctx, ids?: string[]) {
+    requireOrganizer(ctx);
+
+    const pendingActions =
+      ids && ids.length > 0
+        ? await prisma.pendingAction.findMany({
+            where: {
+              id: { in: ids },
+              eventId: ctx.eventId,
+              status: "PENDING",
+            },
+            orderBy: { createdAt: "asc" },
+          })
+        : await prisma.pendingAction.findMany({
+            where: {
+              eventId: ctx.eventId,
+              status: "PENDING",
+            },
+            orderBy: { createdAt: "asc" },
+          });
+
+    const results: { id: string; status: "EXECUTED" | "FAILED"; result?: unknown; error?: string }[] = [];
+
+    for (const action of pendingActions) {
+      try {
+        const executed = await this.confirm(ctx, action.id);
+        results.push({ id: action.id, status: "EXECUTED", result: executed });
+      } catch (err: any) {
+        results.push({ id: action.id, status: "FAILED", error: err.message || "Failed to execute action" });
+      }
+    }
+
+    return results;
+  },
 };

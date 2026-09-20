@@ -22,13 +22,56 @@ export async function GET(req: NextRequest) {
     const ctx = await resolveCtx(user.userId, eventId);
     requireOrganizer(ctx);
 
-    const messages = await prisma.chatMessage.findMany({
-      where: { eventId: ctx.eventId, userId: ctx.userId },
-      orderBy: { createdAt: "asc" },
-      take: 40,
+    const [messages, pendingActions] = await Promise.all([
+      prisma.chatMessage.findMany({
+        where: { eventId: ctx.eventId, userId: ctx.userId },
+        orderBy: { createdAt: "asc" },
+        take: 40,
+      }),
+      prisma.pendingAction.findMany({
+        where: { eventId: ctx.eventId, userId: ctx.userId },
+        orderBy: { createdAt: "asc" },
+      }),
+    ]);
+
+    // Group pending actions by messageId
+    const actionsByMsgId = new Map<string, typeof pendingActions>();
+    const unlinkedPending: typeof pendingActions = [];
+
+    for (const action of pendingActions) {
+      if (action.messageId) {
+        const list = actionsByMsgId.get(action.messageId) || [];
+        list.push(action);
+        actionsByMsgId.set(action.messageId, list);
+      } else if (action.status === "PENDING") {
+        unlinkedPending.push(action);
+      }
+    }
+
+    // Attach actions to messages
+    const enriched = messages.map((m) => {
+      const staged = actionsByMsgId.get(m.id);
+      return {
+        ...m,
+        stagedActions: staged && staged.length > 0 ? staged : undefined,
+      };
     });
 
-    return jsonResponse(messages);
+    // If there are unlinked actions that are still PENDING (e.g. from before messageId was recorded),
+    // attach them to the last assistant message so the user can see and approve them
+    if (unlinkedPending.length > 0) {
+      for (let i = enriched.length - 1; i >= 0; i--) {
+        if (enriched[i].role === "ASSISTANT") {
+          enriched[i].stagedActions = [
+            ...(enriched[i].stagedActions || []),
+            ...unlinkedPending,
+          ];
+          break;
+        }
+      }
+    }
+
+    return jsonResponse(enriched);
   } catch (err) {
     return handleApiError(err);
   }
