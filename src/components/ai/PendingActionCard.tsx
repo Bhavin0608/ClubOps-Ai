@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, ShieldAlert, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -24,6 +24,14 @@ export function PendingActionCard({ action, onResolved }: PendingActionCardProps
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(action.status);
   const [errorMsg, setErrorMsg] = useState(action.error);
+
+  useEffect(() => {
+    setStatus(action.status);
+  }, [action.status]);
+
+  useEffect(() => {
+    setErrorMsg(action.error);
+  }, [action.error]);
 
   const handleConfirm = async () => {
     setLoading(true);

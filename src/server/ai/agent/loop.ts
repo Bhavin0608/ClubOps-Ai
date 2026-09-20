@@ -763,7 +763,7 @@ STRICT GUIDELINES:
     },
   });
 
-  await prisma.chatMessage.create({
+  const asstMessage = await prisma.chatMessage.create({
     data: {
       eventId: ctx.eventId,
       userId: ctx.userId,
@@ -773,6 +773,17 @@ STRICT GUIDELINES:
       citations: citations.length > 0 ? (citations as unknown as Prisma.InputJsonValue) : null,
     },
   });
+
+  if (staged.length > 0) {
+    const stagedIds = staged.map((s) => s.id);
+    await prisma.pendingAction.updateMany({
+      where: { id: { in: stagedIds } },
+      data: { messageId: asstMessage.id },
+    });
+    for (const item of staged) {
+      item.messageId = asstMessage.id;
+    }
+  }
 
   return {
     text: finalAnswer,

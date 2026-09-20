@@ -16,7 +16,9 @@ import {
   ChevronRight,
   MessageSquare,
   RotateCcw,
+  CheckCheck,
 } from "lucide-react";
+import { toast } from "sonner";
 import { FormattedMessage } from "@/components/shared/FormattedMessage";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +64,7 @@ export function AssistantDrawer({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [approvingBatch, setApprovingBatch] = useState<Record<string, boolean>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load persistent chat history from DB on open
@@ -77,6 +80,7 @@ export function AssistantDrawer({
               content: m.content,
               toolTrace: m.toolTrace ?? undefined,
               citations: m.citations ?? undefined,
+              stagedActions: m.stagedActions ?? undefined,
             }));
             setMessages(loaded);
           }
@@ -84,6 +88,80 @@ export function AssistantDrawer({
         .catch((err) => console.error("Failed to load chat history:", err));
     }
   }, [isOpen, eventId]);
+
+  const handleActionResolved = (
+    messageId: string,
+    actionId: string,
+    status: "EXECUTED" | "REJECTED"
+  ) => {
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id !== messageId || !msg.stagedActions) return msg;
+        return {
+          ...msg,
+          stagedActions: msg.stagedActions.map((pa) =>
+            pa.id === actionId ? { ...pa, status } : pa
+          ),
+        };
+      })
+    );
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("clubops:action-resolved"));
+    }
+  };
+
+  const handleApproveAll = async (messageId: string, actionIds: string[]) => {
+    if (approvingBatch[messageId] || actionIds.length === 0) return;
+    setApprovingBatch((prev) => ({ ...prev, [messageId]: true }));
+
+    try {
+      const res = await fetch("/api/ai/actions/confirm-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId, actionIds }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to approve actions");
+      }
+
+      const resultMap = new Map<string, "EXECUTED" | "FAILED">();
+      if (Array.isArray(data.results)) {
+        for (const r of data.results) {
+          resultMap.set(r.id, r.status);
+        }
+      }
+
+      setMessages((prev) =>
+        prev.map((msg) => {
+          if (msg.id !== messageId || !msg.stagedActions) return msg;
+          return {
+            ...msg,
+            stagedActions: msg.stagedActions.map((pa) => {
+              if (actionIds.includes(pa.id)) {
+                const newStatus = resultMap.get(pa.id) || "EXECUTED";
+                return { ...pa, status: newStatus };
+              }
+              return pa;
+            }),
+          };
+        })
+      );
+
+      const executedCount =
+        data.results?.filter((r: any) => r.status === "EXECUTED").length ??
+        actionIds.length;
+      toast.success(`Successfully approved ${executedCount} task(s)!`);
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("clubops:action-resolved"));
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to batch approve tasks");
+    } finally {
+      setApprovingBatch((prev) => ({ ...prev, [messageId]: false }));
+    }
+  };
 
   useEffect(() => {
     if (initialPrompt && isOpen) {
@@ -271,22 +349,50 @@ export function AssistantDrawer({
               )}
 
               {/* Staged Consequential Actions (Human Confirmation Required) */}
-              {m.stagedActions && m.stagedActions.length > 0 && (
-                <div className="mt-3.5 pt-3 border-t border-[#1c294d] space-y-2">
-                  <div className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider">
-                    Approval Required (Human-in-the-Loop)
+              {m.stagedActions && m.stagedActions.length > 0 && (() => {
+                const pendingActions = m.stagedActions.filter((pa) => pa.status === "PENDING");
+                const pendingCount = pendingActions.length;
+                const isBatchLoading = Boolean(approvingBatch[m.id]);
+
+                return (
+                  <div className="mt-3.5 pt-3 border-t border-[#1c294d] space-y-2">
+                    <div className="flex items-center justify-between gap-2 pb-1">
+                      <div className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider flex items-center gap-1.5">
+                        Approval Required
+                        {pendingCount > 0 && (
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            {pendingCount} remaining
+                          </span>
+                        )}
+                      </div>
+                      {pendingCount > 1 && (
+                        <Button
+                          size="sm"
+                          disabled={isBatchLoading}
+                          onClick={() => handleApproveAll(m.id, pendingActions.map((pa) => pa.id))}
+                          className="h-7 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5 px-2.5 rounded-lg shadow cursor-pointer transition-all"
+                        >
+                          {isBatchLoading ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <CheckCheck className="w-3.5 h-3.5" />
+                          )}
+                          Approve All ({pendingCount})
+                        </Button>
+                      )}
+                    </div>
+                    {m.stagedActions.map((pa) => (
+                      <PendingActionCard
+                        key={pa.id}
+                        action={pa}
+                        onResolved={(_id, status) => {
+                          handleActionResolved(m.id, pa.id, status);
+                        }}
+                      />
+                    ))}
                   </div>
-                  {m.stagedActions.map((pa) => (
-                    <PendingActionCard
-                      key={pa.id}
-                      action={pa}
-                      onResolved={() => {
-                        window.location.reload();
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
+                );
+              })()}
             </div>
 
             {m.role === "user" && (
