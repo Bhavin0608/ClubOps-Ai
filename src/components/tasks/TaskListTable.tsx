@@ -6,7 +6,7 @@ import { SeverityBadge } from "@/components/shared/SeverityBadge";
 import { SourceBadge } from "@/components/shared/SourceBadge";
 import { DeadlinePill } from "@/components/shared/DeadlinePill";
 import { Input } from "@/components/ui/input";
-import { Search, Layers, CheckSquare } from "lucide-react";
+import { Search, Layers, CheckSquare, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export interface TaskRow {
@@ -28,6 +28,7 @@ interface TaskListTableProps {
   onTaskUpdated?: () => void;
   isVolunteer?: boolean;
   currentMemberId?: string;
+  onCreateTask?: () => void;
 }
 
 export function TaskListTable({
@@ -35,6 +36,7 @@ export function TaskListTable({
   onTaskUpdated,
   isVolunteer = false,
   currentMemberId,
+  onCreateTask,
 }: TaskListTableProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -154,10 +156,20 @@ export function TaskListTable({
               {filteredTasks.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12 px-4 text-[#9A8678]">
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-2.5">
                       <CheckSquare className="w-8 h-8 text-[#9A8678]/40" />
                       <span className="font-bold text-sm text-[#202940]">No deliverables match your filter</span>
-                      <span className="text-xs text-[#9A8678]">Try resetting search filters or create a new task above</span>
+                      <span className="text-xs text-[#9A8678]">Try resetting search filters or deploy a new deliverable</span>
+                      {onCreateTask && (
+                        <button
+                          type="button"
+                          onClick={onCreateTask}
+                          className="mt-1 px-3.5 py-1.5 rounded-xl bg-[#202940] hover:bg-[#182033] text-[#FAF8F5] text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 border border-[#CAAA98]/30"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-[#CAAA98]" />
+                          Create New Task
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

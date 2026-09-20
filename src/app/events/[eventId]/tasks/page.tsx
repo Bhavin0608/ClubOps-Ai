@@ -42,6 +42,8 @@ export default function TasksPage(props: {
     };
   }, [eventId]);
 
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   if (loading) return <LoadingState message="Loading event tasks..." />;
 
   return (
@@ -60,11 +62,18 @@ export default function TasksPage(props: {
         <TaskCreateModal
           eventId={eventId}
           members={members}
+          existingTasks={tasks}
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
           onTaskCreated={fetchData}
         />
       </div>
 
-      <TaskListTable tasks={tasks} onTaskUpdated={fetchData} />
+      <TaskListTable
+        tasks={tasks}
+        onTaskUpdated={fetchData}
+        onCreateTask={() => setIsCreateModalOpen(true)}
+      />
     </div>
   );
 }
