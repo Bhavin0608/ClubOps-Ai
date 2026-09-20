@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:risk": "vitest run tests/risk-engine.test.ts",
+    "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts"
   },
   "prisma": {
@@ -30,6 +31,7 @@
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
     "unpdf": "^1.8.1",
+    "vercel": "^59.23.2",
     "zod": "^4.6.5"
   },
   "devDependencies": {
