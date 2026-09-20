@@ -79,14 +79,14 @@ export function TaskListTable({
   return (
     <div className="space-y-5">
       {/* Filters Toolbar Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-4 rounded-2xl bg-[#131e38]/85 border border-[#1c294d] shadow-lg backdrop-blur-md">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-4 rounded-2xl bg-white/85 border border-[#CAAA98]/40 shadow-sm backdrop-blur-xl">
         <div className="flex items-center gap-2.5 flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 text-[#94a3b8] flex-shrink-0 ml-1" />
+          <Search className="w-4 h-4 text-[#9A8678] flex-shrink-0 ml-1" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search deliverables, owners, descriptions..."
-            className="h-9 text-xs bg-[#0b1329] border-[#1c294d] text-[#f8fafc] rounded-xl focus-visible:ring-[#b9a8ec]"
+            className="h-9 text-xs bg-[#FAF8F5] border-[#CAAA98]/60 text-[#202940] rounded-xl focus-visible:ring-[#202940]"
           />
         </div>
 
@@ -95,7 +95,7 @@ export function TaskListTable({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 text-xs rounded-xl bg-[#0b1329] border border-[#1c294d] text-slate-200 focus:outline-none focus:border-[#b9a8ec] transition-colors cursor-pointer"
+            className="h-9 px-3 text-xs rounded-xl bg-[#FAF8F5] border border-[#CAAA98]/60 text-[#202940] font-semibold focus:outline-none focus:border-[#202940] transition-colors cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
             <option value="TODO">To Do</option>
@@ -109,7 +109,7 @@ export function TaskListTable({
             <select
               value={teamFilter}
               onChange={(e) => setTeamFilter(e.target.value)}
-              className="h-9 px-3 text-xs rounded-xl bg-[#0b1329] border border-[#1c294d] text-slate-200 focus:outline-none focus:border-[#b9a8ec] transition-colors cursor-pointer"
+              className="h-9 px-3 text-xs rounded-xl bg-[#FAF8F5] border border-[#CAAA98]/60 text-[#202940] font-semibold focus:outline-none focus:border-[#202940] transition-colors cursor-pointer"
             >
               <option value="ALL">All Teams</option>
               {teams.map((team) => (
@@ -124,7 +124,7 @@ export function TaskListTable({
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="h-9 px-3 text-xs rounded-xl bg-[#0b1329] border border-[#1c294d] text-slate-200 focus:outline-none focus:border-[#b9a8ec] transition-colors cursor-pointer"
+            className="h-9 px-3 text-xs rounded-xl bg-[#FAF8F5] border border-[#CAAA98]/60 text-[#202940] font-semibold focus:outline-none focus:border-[#202940] transition-colors cursor-pointer"
           >
             <option value="ALL">All Priorities</option>
             <option value="CRITICAL">Critical Priority</option>
@@ -136,10 +136,10 @@ export function TaskListTable({
       </div>
 
       {/* Tasks Table */}
-      <div className="rounded-2xl border border-[#1c294d] bg-[#131e38]/85 overflow-hidden shadow-xl backdrop-blur-md">
+      <div className="rounded-2xl border border-[#CAAA98]/40 bg-white/85 overflow-hidden shadow-sm backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#0b1329]/90 border-b border-[#1c294d] text-[#94a3b8] font-bold uppercase tracking-wider text-[11px]">
+            <thead className="bg-[#FAF8F5] border-b border-[#CAAA98]/30 text-[#9A8678] font-extrabold uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="py-4 px-5">Deliverable / Task</th>
                 <th className="py-4 px-4">Status</th>
@@ -150,14 +150,14 @@ export function TaskListTable({
                 <th className="py-4 px-4">Provenance</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1c294d]/60">
+            <tbody className="divide-y divide-[#CAAA98]/20">
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 px-4 text-[#94a3b8]">
+                  <td colSpan={7} className="text-center py-12 px-4 text-[#9A8678]">
                     <div className="flex flex-col items-center gap-2">
-                      <CheckSquare className="w-8 h-8 text-[#94a3b8]/40" />
-                      <span className="font-semibold text-sm text-[#f8fafc]">No deliverables match your filter</span>
-                      <span className="text-xs text-[#94a3b8]">Try resetting search filters or create a new task above</span>
+                      <CheckSquare className="w-8 h-8 text-[#9A8678]/40" />
+                      <span className="font-bold text-sm text-[#202940]">No deliverables match your filter</span>
+                      <span className="text-xs text-[#9A8678]">Try resetting search filters or create a new task above</span>
                     </div>
                   </td>
                 </tr>
@@ -172,19 +172,19 @@ export function TaskListTable({
                   return (
                     <tr
                       key={t.id}
-                      className="hover:bg-[#1c294d]/40 transition-colors group"
+                      className="hover:bg-[#CAAA98]/10 transition-colors group"
                     >
                       <td className="py-4 px-5 max-w-sm">
-                        <div className="font-semibold text-[#f8fafc] group-hover:text-[#b9a8ec] transition-colors">
+                        <div className="font-bold text-[#202940] group-hover:text-[#4B4038] transition-colors">
                           {t.title}
                         </div>
                         {t.description && (
-                          <div className="text-[11px] text-[#94a3b8] line-clamp-1 mt-0.5">
+                          <div className="text-[11px] text-[#4B4038] line-clamp-1 mt-0.5 font-medium">
                             {t.description}
                           </div>
                         )}
                         {t.team && (
-                          <span className="inline-block mt-1 text-[10px] font-mono text-[#94a3b8] bg-[#0b1329] px-2 py-0.5 rounded border border-[#1c294d]">
+                          <span className="inline-block mt-1 text-[10px] font-mono text-[#4B4038] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#CAAA98]/40">
                             {t.team}
                           </span>
                         )}
@@ -197,7 +197,7 @@ export function TaskListTable({
                             onChange={(e) =>
                               handleStatusChange(t.id, e.target.value as TaskStatus)
                             }
-                            className="bg-[#0b1329] border border-[#1c294d] text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#b9a8ec] cursor-pointer"
+                            className="bg-white border border-[#CAAA98]/60 text-[#202940] text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#202940] cursor-pointer shadow-xs"
                           >
                             {allowedOptions.includes("TODO") && <option value="TODO">To Do</option>}
                             {allowedOptions.includes("IN_PROGRESS") && (
@@ -219,9 +219,9 @@ export function TaskListTable({
 
                       <td className="py-4 px-4 font-medium">
                         {t.owner ? (
-                          <div className="text-slate-200 font-semibold">{t.owner.name}</div>
+                          <div className="text-[#202940] font-bold">{t.owner.name}</div>
                         ) : (
-                          <span className="text-amber-400/90 text-[11px] font-mono bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-800/40">
+                          <span className="text-amber-800 text-[11px] font-mono bg-amber-50 px-2 py-0.5 rounded-full border border-amber-300 font-bold">
                             Unassigned
                           </span>
                         )}
@@ -231,21 +231,21 @@ export function TaskListTable({
                         <DeadlinePill deadline={t.deadline} />
                       </td>
 
-                      <td className="py-4 px-4 text-[#94a3b8] font-mono text-xs">
+                      <td className="py-4 px-4 text-[#4B4038] font-mono text-xs">
                         {prereqCount > 0 || dependentCount > 0 ? (
                           <div
-                            className="flex items-center gap-1.5 bg-[#0b1329] px-2 py-1 rounded-md border border-[#1c294d] w-fit"
+                            className="flex items-center gap-1.5 bg-[#FAF8F5] px-2 py-1 rounded-lg border border-[#CAAA98]/40 w-fit"
                             title={`Waits on ${prereqCount}, blocks ${dependentCount}`}
                           >
-                            <Layers className="w-3.5 h-3.5 text-[#b9a8ec]" />
-                            <span>
+                            <Layers className="w-3.5 h-3.5 text-[#202940]" />
+                            <span className="font-semibold text-[#202940]">
                               {prereqCount > 0 && `←${prereqCount}`}
                               {prereqCount > 0 && dependentCount > 0 && " · "}
                               {dependentCount > 0 && `→${dependentCount}`}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[#94a3b8]/50">—</span>
+                          <span className="text-[#9A8678]/50">—</span>
                         )}
                       </td>
 

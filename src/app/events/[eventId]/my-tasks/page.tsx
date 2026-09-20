@@ -41,12 +41,12 @@ export default function MyTasksPage(props: {
 
   return (
     <div className="space-y-6">
-      <div className="pb-4 border-b border-slate-800">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <CheckSquare className="w-5 h-5 text-purple-400" />
+      <div className="pb-4 border-b border-[#CAAA98]/40">
+        <h2 className="text-lg font-bold text-[#202940] flex items-center gap-2">
+          <CheckSquare className="w-5 h-5 text-[#202940]" />
           My Assigned Deliverables
         </h2>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-[#9A8678]">
           Volunteer portal: update the progress status of tasks assigned to you
         </p>
       </div>

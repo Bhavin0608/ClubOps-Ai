@@ -78,12 +78,11 @@ export default function EventDashboardPage(props: {
       if (!res.ok) throw new Error(planData.error || "Failed to generate plan");
 
       toast.success("AI Plan proposed! Check the Assistant Drawer or confirm action.");
-      // Confirm automatically or let user view
       const confirmRes = await fetch(`/api/ai/actions/${planData.pendingActionId}/confirm`, {
         method: "POST",
       });
       if (confirmRes.ok) {
-        toast.success("Plan confirmed: 3 operational teams and tasks deployed!");
+        toast.success("Plan confirmed: operational teams and initial tasks deployed!");
         fetchDashboard();
       }
     } catch (err: any) {
@@ -94,7 +93,7 @@ export default function EventDashboardPage(props: {
   };
 
   if (loading) {
-    return <LoadingState message="Loading event command telemetry..." />;
+    return <LoadingState message="Restoring event command telemetry..." />;
   }
 
   const metrics = data?.metrics || {
@@ -109,70 +108,80 @@ export default function EventDashboardPage(props: {
     expectedParticipants: 0,
   };
 
+  const topRisks = data?.topRisks || [];
+  const upcomingDeadlines = data?.upcomingDeadlines || [];
+  const workload = data?.workload || [];
+  const activity = data?.activity || [];
+
   return (
-    <div className="space-y-10">
-      {/* Event Hero Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#131e38] via-[#101932] to-[#0b1329] border border-[#1c294d] p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div className="space-y-8 animate-portal-enter pb-12">
+      {/* Serene Architectural Welcome Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-white/95 via-[#FAF8F5]/90 to-[#ECE5DE]/30 border border-[#CAAA98]/35 p-6 sm:p-8 shadow-xs backdrop-blur-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#87a997]/15 text-[#87a997] border border-[#87a997]/30">
-                <span className="w-2 h-2 rounded-full bg-[#87a997] animate-pulse" />
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                 {metrics.eventStatus || "ACTIVE"}
               </span>
-              <span className="text-xs font-mono text-[#94a3b8] bg-[#0b1329]/80 px-2.5 py-1 rounded-lg border border-[#1c294d]">
-                Workspace ID: {eventId.slice(0, 8)}...
+              <span className="text-[#9A8678] font-medium hidden sm:inline">•</span>
+              <span className="text-[#9A8678] font-medium">
+                {metrics.countdownDays > 0 ? `${metrics.countdownDays} days until commencement` : "Active cycle"}
+              </span>
+              <span className="text-[#9A8678] font-medium hidden sm:inline">•</span>
+              <span className="font-mono text-[11px] text-[#9A8678]">
+                ID: {eventId.slice(0, 8)}
               </span>
             </div>
 
             <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#f8fafc] tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-light text-[#202940] tracking-tight">
                 {metrics.eventName}
               </h2>
-              <p className="text-xs sm:text-sm text-[#94a3b8] mt-1 max-w-2xl leading-relaxed">
-                Central command dashboard for continuous risk detection, autonomous task orchestration, and team coordination.
+              <p className="text-xs sm:text-sm text-[#9A8678] mt-1 font-medium max-w-2xl leading-relaxed">
+                Autonomous orchestration, risk mitigation telemetry, and team harmony center.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-5 pt-1 text-xs text-[#94a3b8]">
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-[#4B4038]">
               {metrics.startDate && (
-                <div className="flex items-center gap-2 bg-[#0b1329]/60 px-3 py-1.5 rounded-lg border border-[#1c294d]">
-                  <Calendar className="w-4 h-4 text-[#b9a8ec]" />
+                <div className="flex items-center gap-1.5 bg-white/70 px-3 py-1 rounded-xl border border-[#CAAA98]/30 font-medium">
+                  <Calendar className="w-3.5 h-3.5 text-[#202940]" />
                   <span>{formatDisplayDate(metrics.startDate)}</span>
                 </div>
               )}
               {metrics.venue && (
-                <div className="flex items-center gap-2 bg-[#0b1329]/60 px-3 py-1.5 rounded-lg border border-[#1c294d]">
-                  <MapPin className="w-4 h-4 text-[#87a997]" />
+                <div className="flex items-center gap-1.5 bg-white/70 px-3 py-1 rounded-xl border border-[#CAAA98]/30 font-medium">
+                  <MapPin className="w-3.5 h-3.5 text-[#CAAA98]" />
                   <span>{metrics.venue}</span>
                 </div>
               )}
               {metrics.expectedParticipants > 0 && (
-                <div className="flex items-center gap-2 bg-[#0b1329]/60 px-3 py-1.5 rounded-lg border border-[#1c294d]">
-                  <Users className="w-4 h-4 text-[#b9a8ec]" />
-                  <span>{metrics.expectedParticipants} Registered Participants</span>
+                <div className="flex items-center gap-1.5 bg-white/70 px-3 py-1 rounded-xl border border-[#CAAA98]/30 font-medium">
+                  <Users className="w-3.5 h-3.5 text-[#202940]" />
+                  <span>{metrics.expectedParticipants} Registered Attendees</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Quick Action Trigger */}
+          {/* Quick Action Trigger for empty workspace */}
           {metrics.totalTasks === 0 && (
             <div className="flex-shrink-0">
               <Button
                 onClick={handleGeneratePlan}
                 disabled={generatingPlan}
-                className="w-full sm:w-auto bg-gradient-to-r from-[#b9a8ec] via-[#ab99e4] to-[#9b88d8] hover:opacity-95 text-[#0b1329] gap-2.5 text-xs font-bold h-11 px-5 rounded-xl shadow-xl shadow-[#b9a8ec]/25 cursor-pointer border-0"
+                className="w-full sm:w-auto bg-[#202940] hover:bg-[#1a2133] text-white gap-2 text-xs font-semibold h-10 px-5 rounded-2xl shadow-xs cursor-pointer border-0"
               >
                 {generatingPlan ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0b1329]" />
-                    <span>Synthesizing Operational Plan...</span>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#CAAA98]" />
+                    <span>Synthesizing Plan...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-[#0b1329] animate-pulse" />
-                    <span>Scene 2: Propose AI Plan & Tasks</span>
+                    <Sparkles className="w-3.5 h-3.5 text-[#CAAA98]" />
+                    <span>Propose AI Operational Plan</span>
                   </>
                 )}
               </Button>
@@ -181,88 +190,37 @@ export default function EventDashboardPage(props: {
         </div>
       </div>
 
-      {/* Section 1: Health & Focus Center */}
-      <div className="space-y-3.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#b9a8ec]" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#94a3b8]">
-              Operational Health & Priority Radar
-            </h3>
-          </div>
-          <span className="text-[11px] text-[#94a3b8] hidden sm:inline">
-            Deterministic rule validation + LLM mitigation synthesis
-          </span>
-        </div>
+      {/* Zen Floating Telemetry Deck */}
+      <StatCards metrics={metrics} />
 
-        <HealthSummaryWidget
-          eventId={eventId}
-          initialStatus={data?.healthStatus || "ON_TRACK"}
-        />
-      </div>
+      {/* Operational Equilibrium & Focus Center */}
+      <HealthSummaryWidget
+        eventId={eventId}
+        initialStatus={data?.healthStatus || "ON_TRACK"}
+      />
 
-      {/* Section 2: Core Telemetry Metric Cards */}
-      <div className="space-y-3.5">
-        <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-[#87a997]" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#94a3b8]">
-            Key Performance Telemetry
-          </h3>
-        </div>
-
-        <StatCards metrics={metrics} />
-      </div>
-
-      {/* Section 3: Dual Column Operations Grid */}
+      {/* Dual Column Operations Grid (Restored Directly with Spacious Breathability) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Column 1: Risks & Milestones */}
         <div className="space-y-8">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#94a3b8]">
-                Risk & Bottleneck Engine
-              </h4>
-            </div>
-            <TopRisksWidget
-              eventId={eventId}
-              risks={data?.topRisks || []}
-              onExplainRisk={handleExplainRisk}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#94a3b8]">
-              Upcoming Deadlines & Milestones
-            </h4>
-            <UpcomingDeadlinesWidget
-              eventId={eventId}
-              tasks={data?.upcomingDeadlines || []}
-            />
-          </div>
+          <TopRisksWidget
+            eventId={eventId}
+            risks={topRisks}
+            onExplainRisk={handleExplainRisk}
+          />
+          <UpcomingDeadlinesWidget
+            eventId={eventId}
+            tasks={upcomingDeadlines}
+          />
         </div>
 
-        {/* Column 2: Volunteers & Audit Feed */}
+        {/* Column 2: Volunteers & Audit Trail */}
         <div className="space-y-8">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-[#87a997]" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#94a3b8]">
-                Team Bandwidth & Allocation
-              </h4>
-            </div>
-            <VolunteerWorkloadWidget
-              eventId={eventId}
-              volunteers={data?.workload || []}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#94a3b8]">
-              Audit Trail & Autonomous Actions
-            </h4>
-            <ActivityFeedWidget logs={data?.activity || []} />
-          </div>
+          <VolunteerWorkloadWidget
+            eventId={eventId}
+            volunteers={workload}
+          />
+          <ActivityFeedWidget logs={activity} />
         </div>
       </div>
 

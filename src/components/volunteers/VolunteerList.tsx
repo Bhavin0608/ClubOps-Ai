@@ -46,14 +46,14 @@ export function VolunteerList({ members }: VolunteerListProps) {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-white/85 border border-[#CAAA98]/40 shadow-sm backdrop-blur-xl">
         <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-          <Search className="w-4 h-4 text-slate-400" />
+          <Search className="w-4 h-4 text-[#9A8678]" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search volunteers by name, skills, email..."
-            className="h-8 text-xs bg-slate-950 border-slate-700"
+            className="h-9 text-xs bg-[#FAF8F5] border-[#CAAA98]/60 text-[#202940]"
           />
         </div>
 
@@ -61,7 +61,7 @@ export function VolunteerList({ members }: VolunteerListProps) {
           <select
             value={teamFilter}
             onChange={(e) => setTeamFilter(e.target.value)}
-            className="h-8 px-2 text-xs rounded-md bg-slate-950 border border-slate-700 text-slate-300 focus:outline-none"
+            className="h-9 px-3 text-xs rounded-xl bg-[#FAF8F5] border border-[#CAAA98]/60 text-[#202940] font-semibold focus:outline-none"
           >
             <option value="ALL">All Teams</option>
             {teams.map((t) => (
@@ -74,9 +74,9 @@ export function VolunteerList({ members }: VolunteerListProps) {
       </div>
 
       {/* Roster Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-xs text-slate-400 rounded-xl border border-dashed border-slate-800">
+          <div className="col-span-full text-center py-12 text-xs text-[#9A8678] rounded-2xl border border-dashed border-[#CAAA98]/60 bg-white/60">
             No volunteers match your criteria
           </div>
         ) : (
@@ -86,19 +86,19 @@ export function VolunteerList({ members }: VolunteerListProps) {
             return (
               <div
                 key={m.id}
-                className={`p-4 rounded-xl border transition-all space-y-3 ${
+                className={`p-4 rounded-2xl border transition-all space-y-3 shadow-xs ${
                   isOverloaded
-                    ? "bg-rose-950/20 border-rose-800/40"
-                    : "bg-slate-900/60 border-slate-800 hover:border-slate-700"
+                    ? "bg-rose-50/60 border-rose-300"
+                    : "bg-white/90 border-[#CAAA98]/40 hover:border-[#CAAA98]"
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-slate-100 text-sm">{m.name}</div>
-                    <div className="text-[11px] text-slate-400 flex items-center gap-1 font-mono mt-0.5">
+                    <div className="font-bold text-[#202940] text-sm">{m.name}</div>
+                    <div className="text-[11px] text-[#9A8678] flex items-center gap-1 font-mono mt-0.5">
                       {m.email ? (
                         <span className="flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-slate-500" />
+                          <Mail className="w-3 h-3 text-[#9A8678]" />
                           {m.email}
                         </span>
                       ) : (
@@ -115,9 +115,9 @@ export function VolunteerList({ members }: VolunteerListProps) {
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-300">
-                  <span className="text-slate-400">Team:</span>
-                  <span className="font-medium text-slate-200">{m.team || "General Roster"}</span>
+                <div className="flex items-center justify-between text-[11px] text-[#4B4038] font-medium">
+                  <span className="text-[#9A8678]">Team:</span>
+                  <span className="font-semibold text-[#202940]">{m.team || "General Roster"}</span>
                 </div>
 
                 {m.skills && m.skills.length > 0 && (
@@ -125,7 +125,7 @@ export function VolunteerList({ members }: VolunteerListProps) {
                     {m.skills.map((s, idx) => (
                       <span
                         key={idx}
-                        className="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 text-slate-300 border border-slate-800"
+                        className="text-[10px] px-2 py-0.5 rounded-md bg-[#FAF8F5] text-[#4B4038] border border-[#CAAA98]/40 font-medium"
                       >
                         {s}
                       </span>
@@ -134,7 +134,7 @@ export function VolunteerList({ members }: VolunteerListProps) {
                 )}
 
                 {/* Workload Progress Bar */}
-                <div className="pt-1 border-t border-slate-800/60">
+                <div className="pt-2 border-t border-[#CAAA98]/25">
                   <WorkloadBar
                     openTasks={m.openTasks}
                     completedTasks={m.completedTasks}

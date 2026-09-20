@@ -33,13 +33,13 @@ export default function VolunteersPage(props: {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CAAA98]/30">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-400" />
+          <h2 className="text-lg font-extrabold text-[#202940] flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#202940]" />
             Volunteers & Team Allocation
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#4B4038] font-medium">
             Monitor volunteer workload, skill tags, and prevent individual member burnout
           </p>
         </div>

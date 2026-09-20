@@ -33,12 +33,12 @@ export default function DeadlinesPage(props: {
 
   return (
     <div className="space-y-6">
-      <div className="pb-4 border-b border-slate-800">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Clock className="w-5 h-5 text-amber-400" />
+      <div className="pb-4 border-b border-[#CAAA98]/30">
+        <h2 className="text-lg font-extrabold text-[#202940] flex items-center gap-2">
+          <Clock className="w-5 h-5 text-amber-700" />
           Operational Deadlines & Urgency
         </h2>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-[#4B4038] font-medium">
           Saved views for overdue items, 7-day upcoming deliverables, and unscheduled work
         </p>
       </div>

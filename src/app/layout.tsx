@@ -27,10 +27,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${jakartaSans.variable} ${monoFont.variable} h-full antialiased font-sans dark`}
+      className={`${jakartaSans.variable} ${monoFont.variable} h-full antialiased font-sans`}
     >
-      <body className="min-h-full flex flex-col bg-[#0b1329] text-[#f8fafc] selection:bg-[#b9a8ec]/30 selection:text-[#f8fafc]">
-        {/* Ambient 3D Particle Constellation Canvas */}
+      <body className="min-h-full flex flex-col bg-[#FAF8F5] text-[#4B4038] selection:bg-[#CAAA98]/40 selection:text-[#202940]">
+        {/* Ambient 3D Architectural Node Canvas */}
         <ConstellationCanvas />
 
         {/* App Content */}
@@ -38,15 +38,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </div>
 
-        {/* Notification Toasts styled for nocturnal luxury spa theme */}
+        {/* Notification Toasts styled for architectural glassmorphism */}
         <Toaster
           position="top-right"
-          theme="dark"
+          theme="light"
           toastOptions={{
             style: {
-              background: "#131e38",
-              border: "1px solid #1c294d",
-              color: "#f8fafc",
+              background: "rgba(250, 248, 245, 0.95)",
+              border: "1px solid rgba(202, 170, 152, 0.6)",
+              color: "#202940",
+              boxShadow: "0 10px 25px -5px rgba(32, 41, 64, 0.1)",
+              backdropFilter: "blur(16px)",
             },
           }}
         />

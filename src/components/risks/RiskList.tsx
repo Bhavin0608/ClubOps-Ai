@@ -80,10 +80,10 @@ export function RiskList({ risks, onRiskUpdated }: RiskListProps) {
           <div key={sev} className="space-y-2.5">
             <div className="flex items-center gap-2">
               <SeverityBadge level={sev} />
-              <span className="text-xs text-slate-400 font-mono">({group.length})</span>
+              <span className="text-xs text-[#9A8678] font-mono font-semibold">({group.length})</span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {group.map((r) => {
                 const isAcknowledged = r.status === "ACKNOWLEDGED";
                 const isExplaining = explainingId === r.id;
@@ -91,24 +91,24 @@ export function RiskList({ risks, onRiskUpdated }: RiskListProps) {
                 return (
                   <div
                     key={r.id}
-                    className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+                    className="p-4 rounded-2xl bg-white/90 border border-[#CAAA98]/40 hover:border-[#CAAA98] shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
                   >
                     <div className="space-y-1.5 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-100 text-sm">{r.title}</span>
+                        <span className="font-bold text-[#202940] text-sm">{r.title}</span>
                         {isAcknowledged && (
-                          <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded border border-slate-700">
+                          <span className="text-[10px] font-mono text-[#4B4038] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#CAAA98]/40 font-bold">
                             ACKNOWLEDGED
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-300 leading-relaxed">{r.detail}</p>
-                      <div className="text-[11px] font-mono text-slate-400 flex items-center gap-2">
+                      <p className="text-[#4B4038] leading-relaxed font-medium">{r.detail}</p>
+                      <div className="text-[11px] font-mono text-[#9A8678] flex items-center gap-2 font-medium">
                         <span>Rule: {r.ruleKey}</span>
                         {r.evidence && (
                           <>
                             <span>·</span>
-                            <span className="text-slate-400">
+                            <span className="text-[#9A8678]">
                               Evidence: {JSON.stringify(r.evidence).slice(0, 80)}...
                             </span>
                           </>
@@ -116,18 +116,18 @@ export function RiskList({ risks, onRiskUpdated }: RiskListProps) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+                    <div className="flex items-center gap-2 flex-shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-[#CAAA98]/20">
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleExplain(r)}
                         disabled={isExplaining}
-                        className="text-xs text-blue-300 border-blue-500/40 hover:bg-blue-600/10 gap-1.5 h-8 font-medium"
+                        className="text-xs text-[#202940] border-[#CAAA98]/60 hover:bg-[#CAAA98]/20 gap-1.5 h-8 font-bold"
                       >
                         {isExplaining ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#202940]" />
                         ) : (
-                          <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                          <Sparkles className="w-3.5 h-3.5 text-[#202940]" />
                         )}
                         {r.aiExplanation ? "View AI Analysis" : "Explain with AI"}
                       </Button>
@@ -137,9 +137,9 @@ export function RiskList({ risks, onRiskUpdated }: RiskListProps) {
                           size="sm"
                           variant="secondary"
                           onClick={() => handleStatusChange(r.id, "ACKNOWLEDGED")}
-                          className="text-xs text-slate-300 h-8 gap-1"
+                          className="text-xs text-[#4B4038] bg-[#FAF8F5] border border-[#CAAA98]/40 hover:bg-[#CAAA98]/20 h-8 gap-1 font-semibold"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-3.5 h-3.5 text-[#9A8678]" />
                           Ack
                         </Button>
                       )}
@@ -148,9 +148,9 @@ export function RiskList({ risks, onRiskUpdated }: RiskListProps) {
                         size="sm"
                         variant="outline"
                         onClick={() => handleStatusChange(r.id, "RESOLVED")}
-                        className="text-xs text-emerald-400 border-emerald-500/30 hover:bg-emerald-600/10 h-8 gap-1"
+                        className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 h-8 gap-1 font-bold"
                       >
-                        <Check className="w-3.5 h-3.5" />
+                        <Check className="w-3.5 h-3.5 text-emerald-700" />
                         Resolve
                       </Button>
                     </div>

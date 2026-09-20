@@ -245,21 +245,21 @@ export function AssistantDrawer({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#0b1329]/95 backdrop-blur-2xl border-l border-[#1c294d] shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#FAF8F5]/95 backdrop-blur-2xl border-l border-[#CAAA98]/50 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
       {/* Drawer Header */}
-      <div className="p-4 border-b border-[#1c294d] flex items-center justify-between bg-[#131e38]/70 backdrop-blur-md">
+      <div className="p-4 border-b border-[#CAAA98]/30 flex items-center justify-between bg-white/85 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec]">
-            <Sparkles className="w-4 h-4 text-[#b9a8ec]" />
+          <div className="w-8 h-8 rounded-xl bg-[#202940] flex items-center justify-center text-[#CAAA98] shadow-xs">
+            <Sparkles className="w-4 h-4 text-[#CAAA98]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-[#f8fafc] flex items-center gap-1.5">
+            <h3 className="text-sm font-extrabold text-[#202940] flex items-center gap-1.5">
               ClubOps AI Assistant
-              <span className="text-[10px] font-mono bg-[#b9a8ec]/15 text-[#b9a8ec] px-1.5 py-0.5 rounded border border-[#b9a8ec]/30">
+              <span className="text-[10px] font-mono bg-[#CAAA98]/25 text-[#202940] px-1.5 py-0.5 rounded border border-[#CAAA98]/40 font-bold">
                 PROD
               </span>
             </h3>
-            <p className="text-[11px] text-[#94a3b8]">Continuous Memory & Tool Executor</p>
+            <p className="text-[11px] text-[#9A8678] font-medium">Continuous Memory & Tool Executor</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -267,13 +267,13 @@ export function AssistantDrawer({
             onClick={handleClearHistory}
             disabled={clearing}
             title="Clear Chat History"
-            className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1c294d] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9A8678] hover:text-[#202940] hover:bg-[#CAAA98]/20 transition-colors cursor-pointer"
           >
-            <RotateCcw className={cn("w-4 h-4", clearing && "animate-spin text-[#b9a8ec]")} />
+            <RotateCcw className={cn("w-4 h-4", clearing && "animate-spin text-[#202940]")} />
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1c294d] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9A8678] hover:text-[#202940] hover:bg-[#CAAA98]/20 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -281,12 +281,12 @@ export function AssistantDrawer({
       </div>
 
       {/* Suggested prompts carousel / bar */}
-      <div className="px-4 py-2.5 bg-[#131e38]/40 border-b border-[#1c294d]/80 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
+      <div className="px-4 py-2.5 bg-[#FAF8F5]/70 border-b border-[#CAAA98]/30 overflow-x-auto whitespace-nowrap flex gap-2 no-scrollbar">
         {SUGGESTED_PROMPTS.map((p, idx) => (
           <button
             key={idx}
             onClick={() => handleSendMessage(p)}
-            className="text-[11px] px-2.5 py-1 rounded-full bg-[#131e38] text-slate-300 hover:bg-[#b9a8ec]/20 hover:text-[#b9a8ec] hover:border-[#b9a8ec]/40 border border-[#1c294d] transition-all cursor-pointer flex-shrink-0"
+            className="text-[11px] px-2.5 py-1 rounded-full bg-white text-[#4B4038] hover:bg-[#CAAA98]/25 hover:text-[#202940] border border-[#CAAA98]/50 shadow-xs transition-all cursor-pointer flex-shrink-0 font-medium"
           >
             {p}
           </button>
@@ -304,7 +304,7 @@ export function AssistantDrawer({
             )}
           >
             {m.role === "assistant" && (
-              <div className="w-7 h-7 rounded-lg bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex-shrink-0 flex items-center justify-center text-[#b9a8ec] mt-0.5">
+              <div className="w-7 h-7 rounded-lg bg-[#202940] flex-shrink-0 flex items-center justify-center text-[#CAAA98] mt-0.5 shadow-xs">
                 <Bot className="w-3.5 h-3.5" />
               </div>
             )}
@@ -313,8 +313,8 @@ export function AssistantDrawer({
               className={cn(
                 "rounded-2xl px-4 py-3 max-w-[85%] leading-relaxed",
                 m.role === "user"
-                  ? "bg-[#b9a8ec] text-[#0b1329] font-medium rounded-tr-none shadow-md"
-                  : "bg-[#131e38] border border-[#1c294d] text-[#f8fafc] rounded-tl-none shadow-sm"
+                  ? "bg-[#202940] text-white font-medium rounded-tr-none shadow-md"
+                  : "bg-white border border-[#CAAA98]/50 text-[#4B4038] rounded-tl-none shadow-xs"
               )}
             >
               {/* Tool Execution Trace Chips */}
@@ -323,9 +323,9 @@ export function AssistantDrawer({
                   {m.toolTrace.map((tr, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-[#0b1329] border border-[#1c294d] text-[#94a3b8]"
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF8F5] border border-[#CAAA98]/40 text-[#4B4038]"
                     >
-                      <Wrench className="w-2.5 h-2.5 text-[#b9a8ec]" />
+                      <Wrench className="w-2.5 h-2.5 text-[#202940]" />
                       {tr.tool}
                     </span>
                   ))}
@@ -343,7 +343,7 @@ export function AssistantDrawer({
 
               {/* Verified Document Citations */}
               {m.citations && m.citations.length > 0 && (
-                <div className="mt-3 pt-2.5 border-t border-[#1c294d]">
+                <div className="mt-3 pt-2.5 border-t border-[#CAAA98]/30">
                   <CitationList citations={m.citations} />
                 </div>
               )}
@@ -355,12 +355,12 @@ export function AssistantDrawer({
                 const isBatchLoading = Boolean(approvingBatch[m.id]);
 
                 return (
-                  <div className="mt-3.5 pt-3 border-t border-[#1c294d] space-y-2">
+                  <div className="mt-3.5 pt-3 border-t border-[#CAAA98]/30 space-y-2">
                     <div className="flex items-center justify-between gap-2 pb-1">
-                      <div className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider flex items-center gap-1.5">
+                      <div className="text-[11px] font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
                         Approval Required
                         {pendingCount > 0 && (
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-semibold">
                             {pendingCount} remaining
                           </span>
                         )}
@@ -370,7 +370,7 @@ export function AssistantDrawer({
                           size="sm"
                           disabled={isBatchLoading}
                           onClick={() => handleApproveAll(m.id, pendingActions.map((pa) => pa.id))}
-                          className="h-7 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5 px-2.5 rounded-lg shadow cursor-pointer transition-all"
+                          className="h-7 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 px-2.5 rounded-lg shadow-xs cursor-pointer transition-all"
                         >
                           {isBatchLoading ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -396,7 +396,7 @@ export function AssistantDrawer({
             </div>
 
             {m.role === "user" && (
-              <div className="w-7 h-7 rounded-lg bg-[#1c294d] border border-[#253766] flex-shrink-0 flex items-center justify-center text-[#b9a8ec] mt-0.5">
+              <div className="w-7 h-7 rounded-lg bg-[#CAAA98]/30 border border-[#CAAA98]/50 flex-shrink-0 flex items-center justify-center text-[#202940] mt-0.5">
                 <User className="w-3.5 h-3.5" />
               </div>
             )}
@@ -405,12 +405,12 @@ export function AssistantDrawer({
 
         {loading && (
           <div className="flex gap-3 text-sm justify-start">
-            <div className="w-7 h-7 rounded-lg bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec] mt-0.5">
+            <div className="w-7 h-7 rounded-lg bg-[#202940] flex items-center justify-center text-[#CAAA98] mt-0.5 shadow-xs">
               <Bot className="w-3.5 h-3.5" />
             </div>
-            <div className="rounded-2xl rounded-tl-none bg-[#131e38] border border-[#1c294d] px-4 py-3 text-[#94a3b8] flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-[#b9a8ec]" />
-              <span className="text-xs">Analyzing event state & executing tools...</span>
+            <div className="rounded-2xl rounded-tl-none bg-white border border-[#CAAA98]/50 px-4 py-3 text-[#4B4038] flex items-center gap-2 shadow-xs">
+              <Loader2 className="w-4 h-4 animate-spin text-[#202940]" />
+              <span className="text-xs font-medium">Analyzing event state & executing tools...</span>
             </div>
           </div>
         )}
@@ -419,7 +419,7 @@ export function AssistantDrawer({
       </div>
 
       {/* Input Field */}
-      <div className="p-3 border-t border-[#1c294d] bg-[#131e38]/70 backdrop-blur-md">
+      <div className="p-3 border-t border-[#CAAA98]/30 bg-white/90 backdrop-blur-md">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -431,14 +431,14 @@ export function AssistantDrawer({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='Ask a question, assign tasks, or say "Remember that..."'
-            className="flex-1 bg-[#0b1329] border-[#1c294d] text-sm text-[#f8fafc] focus-visible:ring-[#b9a8ec]"
+            className="flex-1 bg-[#FAF8F5] border-[#CAAA98]/60 text-sm text-[#202940] focus-visible:ring-[#202940]"
             disabled={loading}
           />
           <Button
             type="submit"
             size="sm"
             disabled={!input.trim() || loading}
-            className="bg-[#b9a8ec] hover:bg-[#9b88d8] text-[#0b1329] font-semibold cursor-pointer px-3"
+            className="bg-[#202940] hover:bg-[#1a2133] text-white font-semibold cursor-pointer px-3 shadow-xs"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

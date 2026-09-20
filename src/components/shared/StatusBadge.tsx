@@ -19,30 +19,30 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   switch (status) {
     case "COMPLETED":
       return (
-        <Badge variant="success" className="gap-1 text-[11px] font-medium">
-          <CheckCircle2 className="w-3 h-3 text-[#87a997]" />
+        <Badge variant="success" className="gap-1.5 text-[11px] font-semibold">
+          <CheckCircle2 className="w-3 h-3 text-emerald-700" />
           Completed
         </Badge>
       );
     case "IN_PROGRESS":
       return (
-        <Badge variant="default" className="gap-1 text-[11px] font-medium">
-          <Clock className="w-3 h-3 text-[#0b1329] animate-spin" />
+        <Badge variant="default" className="gap-1.5 text-[11px] font-semibold">
+          <Clock className="w-3 h-3 text-[#202940] animate-spin" />
           In Progress
         </Badge>
       );
     case "BLOCKED":
       return (
-        <Badge variant="destructive" className="gap-1 text-[11px] font-semibold">
-          <Ban className="w-3 h-3 text-red-400" />
+        <Badge variant="destructive" className="gap-1.5 text-[11px] font-bold">
+          <Ban className="w-3 h-3 text-rose-600" />
           Blocked
         </Badge>
       );
     case "TODO":
     default:
       return (
-        <Badge variant="secondary" className="gap-1 text-[11px] text-[#94a3b8]">
-          <Circle className="w-3 h-3 text-[#94a3b8]" />
+        <Badge variant="secondary" className="gap-1.5 text-[11px] font-medium text-[#4B4038]">
+          <Circle className="w-3 h-3 text-[#9A8678]" />
           To Do
         </Badge>
       );

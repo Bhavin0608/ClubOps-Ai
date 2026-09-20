@@ -14,9 +14,9 @@ export function SourceBadge({ source }: SourceBadgeProps) {
       return (
         <Badge
           variant="outline"
-          className="bg-indigo-950/50 text-indigo-300 border-indigo-700/50 gap-1 text-[11px] font-medium"
+          className="bg-[#202940]/10 text-[#202940] border-[#202940]/30 gap-1 text-[11px] font-semibold"
         >
-          <Sparkles className="w-3 h-3 text-indigo-400" />
+          <Sparkles className="w-3 h-3 text-[#202940]" />
           AI
         </Badge>
       );
@@ -24,9 +24,9 @@ export function SourceBadge({ source }: SourceBadgeProps) {
       return (
         <Badge
           variant="outline"
-          className="bg-purple-950/50 text-purple-300 border-purple-700/50 gap-1 text-[11px] font-medium"
+          className="bg-[#CAAA98]/25 text-[#4B4038] border-[#CAAA98]/60 gap-1 text-[11px] font-semibold"
         >
-          <FileText className="w-3 h-3 text-purple-400" />
+          <FileText className="w-3 h-3 text-[#4B4038]" />
           Meeting
         </Badge>
       );
@@ -35,9 +35,9 @@ export function SourceBadge({ source }: SourceBadgeProps) {
       return (
         <Badge
           variant="outline"
-          className="bg-slate-800/60 text-slate-400 border-slate-700/50 gap-1 text-[11px]"
+          className="bg-white/80 text-[#9A8678] border-[#CAAA98]/40 gap-1 text-[11px]"
         >
-          <User className="w-3 h-3 text-slate-500" />
+          <User className="w-3 h-3 text-[#9A8678]" />
           Manual
         </Badge>
       );

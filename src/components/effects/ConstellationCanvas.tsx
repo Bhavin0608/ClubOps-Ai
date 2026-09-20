@@ -60,14 +60,15 @@ export function ConstellationCanvas() {
     document.addEventListener("mouseleave", handlePointerLeave);
     window.addEventListener("resize", handleResize);
 
-    // Color definitions from user palette:
-    // Soft Lavender: #b9a8ec -> rgba(185, 168, 236, ...)
-    // Soft Sage Green: #87a997 -> rgba(135, 169, 151, ...)
+    // Architectural palette:
+    // Warm Sandstone: #CAAA98 -> rgb(202, 170, 152)
+    // Earth Taupe: #9A8678 -> rgb(154, 134, 120)
+    // Midnight Prussian Navy: #202940 -> rgb(32, 41, 64)
     const colors = [
-      { r: 185, g: 168, b: 236, type: "lavender" }, // Lavender
-      { r: 155, g: 136, b: 216, type: "deepLavender" }, // Deep lavender
-      { r: 135, g: 169, b: 151, type: "sage" }, // Sage Green
-      { r: 107, g: 140, b: 123, type: "deepSage" }, // Deep Sage
+      { r: 202, g: 170, b: 152, type: "sandstone" },
+      { r: 186, g: 152, b: 133, type: "deepSandstone" },
+      { r: 154, g: 134, b: 120, type: "earthTaupe" },
+      { r: 32, g: 41, b: 64, type: "prussianNavy" },
     ];
 
     let particles: Particle[] = [];
@@ -168,7 +169,7 @@ export function ConstellationCanvas() {
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
             // Delicate geometric connection line
-            ctx.strokeStyle = `rgba(185, 168, 236, ${lineAlpha})`;
+            ctx.strokeStyle = `rgba(202, 170, 152, ${lineAlpha * 1.6})`;
             ctx.lineWidth = 0.75 * Math.min(p.z, p2.z);
             ctx.stroke();
           }

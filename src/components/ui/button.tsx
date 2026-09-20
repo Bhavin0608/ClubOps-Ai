@@ -3,26 +3,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#b9a8ec] disabled:pointer-events-none disabled:opacity-50 select-none cursor-pointer",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#202940] disabled:pointer-events-none disabled:opacity-50 select-none cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "bg-[#b9a8ec] text-[#0b1329] font-semibold shadow-lg shadow-[#b9a8ec]/20 hover:bg-[#9b88d8] active:bg-[#8a75cf]",
+          "bg-[#202940] text-white font-semibold shadow-md shadow-[#202940]/20 hover:bg-[#2c395b] active:bg-[#171f33]",
         destructive:
-          "bg-rose-600 text-white shadow-sm hover:bg-rose-500 active:bg-rose-700",
+          "bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800",
         outline:
-          "border border-[#1c294d] bg-[#131e38]/70 hover:bg-[#1c294d] hover:text-[#f8fafc] text-slate-200 hover:border-[#b9a8ec]/40 shadow-sm",
+          "border border-[#CAAA98]/60 bg-white/80 hover:bg-[#FAF8F5] text-[#4B4038] hover:text-[#202940] hover:border-[#CAAA98] shadow-sm",
         secondary:
-          "bg-[#1c294d] text-[#f8fafc] shadow-sm hover:bg-[#253766] border border-[#253766]/50",
+          "bg-[#CAAA98]/20 text-[#202940] hover:bg-[#CAAA98]/35 border border-[#CAAA98]/40",
         ghost:
-          "hover:bg-[#1c294d]/70 hover:text-[#f8fafc] text-slate-300",
+          "hover:bg-[#CAAA98]/20 text-[#4B4038] hover:text-[#202940]",
         link:
-          "text-[#b9a8ec] underline-offset-4 hover:underline hover:text-[#9b88d8]",
+          "text-[#202940] underline-offset-4 hover:underline hover:text-[#4B4038]",
         accent:
-          "bg-gradient-to-r from-[#b9a8ec] via-[#ab99e4] to-[#9b88d8] text-[#0b1329] font-semibold hover:opacity-95 shadow-lg shadow-[#b9a8ec]/25 border-0",
+          "bg-gradient-to-r from-[#CAAA98] via-[#dfc4b4] to-[#CAAA98] text-[#202940] font-bold hover:brightness-105 shadow-md shadow-[#CAAA98]/25 border-0",
         success:
-          "bg-[#87a997] text-[#0b1329] font-semibold hover:bg-[#6b8c7b] shadow-md shadow-[#87a997]/20",
+          "bg-emerald-700 text-white font-semibold hover:bg-emerald-800 shadow-md shadow-emerald-700/20",
       },
       size: {
         default: "h-9 px-4 py-2",
