@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { ConstellationCanvas } from "@/components/effects/ConstellationCanvas";
-import { CustomCursor } from "@/components/effects/CustomCursor";
 import "./globals.css";
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -33,9 +32,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-[#0b1329] text-[#f8fafc] selection:bg-[#b9a8ec]/30 selection:text-[#f8fafc]">
         {/* Ambient 3D Particle Constellation Canvas */}
         <ConstellationCanvas />
-
-        {/* Custom Lavender Glowing Cursor */}
-        <CustomCursor />
 
         {/* App Content */}
         <div className="relative z-10 min-h-full flex flex-col flex-1">

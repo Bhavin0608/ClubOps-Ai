@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Shield, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { AuthBackground } from "@/components/auth/AuthBackground";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { AuthBrandHeader } from "@/components/auth/AuthBrandHeader";
+import { DemoRoleSelector } from "@/components/auth/DemoRoleSelector";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { AuthFooter } from "@/components/auth/AuthFooter";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +18,12 @@ export default function LoginPage() {
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Please provide both email and access key.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
@@ -25,9 +33,11 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Login failed");
+      if (!res.ok) {
+        throw new Error(data.error || "Authentication rejected. Invalid credentials.");
+      }
 
-      toast.success("Welcome back!");
+      toast.success("Identity verified. Welcome to ClubOps AI.");
       router.push("/events");
     } catch (err: any) {
       toast.error(err.message || "Failed to log in");
@@ -36,101 +46,33 @@ export default function LoginPage() {
     }
   };
 
-  const fillDemoLogin = (demoEmail: string) => {
-    setEmail(demoEmail);
+  const handleDemoSelect = (selectedEmail: string, roleTitle: string) => {
+    setEmail(selectedEmail);
     setPassword("demo1234");
+    toast.info(`Assigned demo credentials for ${roleTitle}`, {
+      description: `Preset email: ${selectedEmail}`,
+    });
   };
 
   return (
-    <div className="min-h-screen bg-[#0b1329]/90 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#b9a8ec] to-[#9b88d8] shadow-xl shadow-[#b9a8ec]/25 text-[#0b1329] mb-2">
-            <Shield className="w-6 h-6 text-[#0b1329]" />
-          </div>
-          <h1 className="text-2xl font-bold text-[#f8fafc] tracking-tight">ClubOps AI</h1>
-          <p className="text-xs text-[#94a3b8]">
-            Autonomous operations command center for collegiate events
-          </p>
-        </div>
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 z-20 selection:bg-[#CAAA98]/40 selection:text-[#202940]">
+      {/* Editorial Architectural Background (#CAAA98, #9A8678, #4B4038, #202940) */}
+      <AuthBackground />
 
-        {/* Demo Fast Logins for Hackathon Judges */}
-        <div className="p-3.5 rounded-xl bg-[#131e38] border border-[#b9a8ec]/30 space-y-2.5">
-          <div className="text-xs font-semibold text-[#b9a8ec] flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#b9a8ec]" />
-            Hackathon Demo Logins (1-Click)
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fillDemoLogin("organizer@clubops.demo")}
-              className="border-[#1c294d] bg-[#0b1329]/80 hover:bg-[#1c294d] text-xs text-left h-auto py-2 flex flex-col items-start cursor-pointer"
-            >
-              <span className="font-semibold text-[#f8fafc]">Aman (Lead)</span>
-              <span className="text-[10px] text-[#b9a8ec]">Organizer Role</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fillDemoLogin("rahul@clubops.demo")}
-              className="border-[#1c294d] bg-[#0b1329]/80 hover:bg-[#1c294d] text-xs text-left h-auto py-2 flex flex-col items-start cursor-pointer"
-            >
-              <span className="font-semibold text-[#f8fafc]">Rahul</span>
-              <span className="text-[10px] text-[#87a997]">Volunteer Role</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="p-6 rounded-2xl bg-[#131e38]/85 border border-[#1c294d] space-y-4 shadow-xl backdrop-blur-md">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">Email Address</label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="organizer@clubops.demo"
-              className="bg-[#0b1329] border-[#1c294d] text-sm text-[#f8fafc]"
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-300">Password</label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="bg-[#0b1329] border-[#1c294d] text-sm text-[#f8fafc]"
-              required
-            />
-          </div>
-
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#b9a8ec] hover:bg-[#9b88d8] text-[#0b1329] font-semibold text-xs h-10 mt-2 cursor-pointer shadow-lg shadow-[#b9a8ec]/20"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-            Sign In to Command Center
-          </Button>
-
-          <div className="text-center pt-2">
-            <Link
-              href="/register"
-              className="text-xs text-[#94a3b8] hover:text-[#b9a8ec] transition-colors"
-            >
-              Don&apos;t have an account? <span className="text-[#b9a8ec] font-medium">Create one</span>
-            </Link>
-          </div>
-        </form>
-      </div>
+      {/* Centered Frosted Architectural Glassmorphism Card with Interactive 3D Tilt */}
+      <AuthCard>
+        <AuthBrandHeader />
+        <DemoRoleSelector activeEmail={email} onSelect={handleDemoSelect} />
+        <LoginForm
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          onSubmit={handleLogin}
+          loading={loading}
+        />
+        <AuthFooter />
+      </AuthCard>
     </div>
   );
 }
