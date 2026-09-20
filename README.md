@@ -1,8 +1,8 @@
 # ClubOps AI — Operations Command Center for College Clubs
 
-> **Event:** Bit N Build — Around the World 2026 (24-hour final)  
+> **Event:** Bit N Build — Around the World 2026 
 > **Problem Statement:** PS-3 — ClubOps AI  
-> **Architecture:** Next.js (App Router) + TypeScript + Tailwind CSS + Prisma ORM + MongoDB Atlas + Gemini 2.5 AI
+> **Architecture:** Next.js (App Router) + TypeScript + Tailwind CSS + Prisma ORM + MongoDB Atlas + AI
 
 ---
 
@@ -34,7 +34,7 @@ ClubOps AI is an **AI-assisted operations command center** that manages events w
 | **Styling** | Tailwind CSS + Lucide Icons | Command-center dark theme with glassmorphism & status pills |
 | **Database** | MongoDB Atlas + Prisma ORM | Scalable document store with ObjectID relations, indexes, and vector embeddings |
 | **Authentication** | `bcryptjs` + Signed JWT (`jose`) | HttpOnly session cookie with role guards (Organizer vs Volunteer) |
-| **AI Layer** | `@google/genai` (Gemini 2.5 Flash & text-embedding-004) | Structured JSON output, multi-turn tool calling, embeddings |
+| **AI Layer** | `@google/genai` (Gemini & text-embedding-004) | Structured JSON output, multi-turn tool calling, embeddings |
 | **Document Ingestion** | `unpdf` (PDF) & `mammoth` (DOCX) | Serverless text extraction and paragraph/sentence chunking |
 | **Testing** | Vitest | Unit test suites for the risk engine and transcript extraction |
 
