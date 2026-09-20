@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 
 interface LoginFormProps {
   email: string;
@@ -10,6 +10,7 @@ interface LoginFormProps {
   setPassword: (password: string) => void;
   onSubmit: (e?: React.FormEvent) => void;
   loading: boolean;
+  isSuccess?: boolean;
 }
 
 export function LoginForm({
@@ -19,6 +20,7 @@ export function LoginForm({
   setPassword,
   onSubmit,
   loading,
+  isSuccess = false,
 }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -38,7 +40,8 @@ export function LoginForm({
             onChange={(e) => setEmail(e.target.value)}
             placeholder="organizer@university.edu"
             required
-            className="w-full h-11 pl-10 pr-4 text-sm rounded-xl glass-architectural-input placeholder:text-[#9A8678]/70 font-medium"
+            disabled={loading || isSuccess}
+            className="w-full h-11 pl-10 pr-4 text-sm rounded-xl glass-architectural-input placeholder:text-[#9A8678]/70 font-medium disabled:opacity-50"
           />
         </div>
       </div>
@@ -63,7 +66,8 @@ export function LoginForm({
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••••••"
             required
-            className="w-full h-11 pl-10 pr-11 text-sm rounded-xl glass-architectural-input placeholder:text-[#9A8678]/70 font-medium"
+            disabled={loading || isSuccess}
+            className="w-full h-11 pl-10 pr-11 text-sm rounded-xl glass-architectural-input placeholder:text-[#9A8678]/70 font-medium disabled:opacity-50"
           />
           <button
             type="button"
@@ -79,23 +83,44 @@ export function LoginForm({
       {/* Deep Midnight Navy Primary Action CTA */}
       <button
         type="submit"
-        disabled={loading}
-        className="group relative w-full h-12 mt-3 rounded-xl bg-[#202940] hover:bg-[#182033] text-[#FAF8F5] font-semibold text-sm shadow-lg shadow-[#202940]/20 hover:shadow-xl hover:shadow-[#202940]/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:pointer-events-none border border-[#CAAA98]/30 overflow-hidden"
+        disabled={loading || isSuccess}
+        className={`group relative w-full h-12 mt-3 rounded-xl font-semibold text-sm shadow-lg transition-all duration-300 flex items-center justify-center cursor-pointer disabled:pointer-events-none border overflow-hidden select-none ${
+          isSuccess
+            ? "bg-[#202940] border-[#CAAA98] shadow-2xl shadow-[#CAAA98]/35 scale-[1.01]"
+            : "bg-[#202940] hover:bg-[#182033] border-[#CAAA98]/35 text-[#FAF8F5] shadow-[#202940]/20 hover:shadow-xl hover:shadow-[#202940]/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60"
+        }`}
       >
         {/* Subtle Warm Sandstone Top Light Sheen */}
-        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#CAAA98]/60 to-transparent pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#CAAA98]/70 to-transparent pointer-events-none" />
 
-        {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin text-[#CAAA98]" />
-            <span className="tracking-wide">Authenticating Identity...</span>
-          </>
-        ) : (
-          <>
-            <span className="tracking-wide">Authorize & Enter Command</span>
-            <ArrowRight className="w-4 h-4 text-[#CAAA98] transition-transform group-hover:translate-x-1" />
-          </>
-        )}
+        {/* Dynamic Sandstone Glow overlay when authenticated */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-r from-[#CAAA98]/10 via-[#CAAA98]/20 to-[#CAAA98]/10 transition-opacity duration-300 pointer-events-none ${
+            isSuccess ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        {/* Button Content */}
+        <div className="relative z-10 w-full flex items-center justify-center px-5">
+          {loading && !isSuccess ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-[#CAAA98]" />
+              <span className="tracking-wide text-[#FAF8F5]">Authenticating Identity...</span>
+            </div>
+          ) : isSuccess ? (
+            <div className="flex items-center justify-center gap-2 text-[#CAAA98] animate-in fade-in zoom-in-95 duration-200">
+              <CheckCircle2 className="w-4 h-4 text-[#CAAA98]" />
+              <span className="tracking-wider uppercase text-xs font-bold font-mono">
+                Access Verified // Entering Portal
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 text-[#FAF8F5]">
+              <span className="tracking-wide">Authorize & Enter Command</span>
+              <ArrowRight className="w-4 h-4 text-[#CAAA98] transition-transform group-hover:translate-x-1" />
+            </div>
+          )}
+        </div>
       </button>
     </form>
   );

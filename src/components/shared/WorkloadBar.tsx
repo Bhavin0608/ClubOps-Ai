@@ -24,30 +24,30 @@ export function WorkloadBar({
     <div className={cn("space-y-1.5 w-full", className)}>
       {showDetails && (
         <div className="flex items-center justify-between text-xs">
-          <span className="text-[#94a3b8] font-mono">
+          <span className="text-[#9A8678] font-mono font-medium">
             {openTasks} open {completedTasks > 0 && `· ${completedTasks} done`}
           </span>
           {isOverloaded ? (
-            <span className="text-rose-400 font-semibold flex items-center gap-1">
+            <span className="text-rose-600 font-bold flex items-center gap-1">
               <AlertCircle className="w-3 h-3" /> Overloaded ({openTasks}/{maxRecommended})
             </span>
           ) : (
-            <span className="text-[#94a3b8]">
+            <span className="text-[#4B4038] font-medium">
               {percentage}% load
             </span>
           )}
         </div>
       )}
 
-      <div className="h-2 w-full bg-[#0b1329] rounded-full overflow-hidden border border-[#1c294d]">
+      <div className="h-2 w-full bg-[#ECE5DE] rounded-full overflow-hidden border border-[#CAAA98]/40">
         <div
           className={cn(
             "h-full transition-all duration-300 rounded-full",
             isOverloaded
-              ? "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]"
+              ? "bg-rose-500"
               : percentage > 70
               ? "bg-amber-500"
-              : "bg-[#87a997]"
+              : "bg-[#202940]"
           )}
           style={{ width: `${Math.max(percentage, 5)}%` }}
         />

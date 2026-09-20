@@ -64,25 +64,25 @@ export function VolunteerAddModal({
       <Button
         size="sm"
         onClick={() => setOpen(true)}
-        className="bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 text-xs font-semibold h-8"
+        className="bg-[#202940] hover:bg-[#2c395b] text-white gap-1.5 text-xs font-bold h-8 shadow-xs"
       >
         <UserPlus className="w-3.5 h-3.5" />
         Add Member
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-base font-semibold text-white">Add Volunteer or Organizer</h3>
-              <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#202940]/40 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md bg-white/95 border border-[#CAAA98]/60 rounded-2xl shadow-2xl p-6 space-y-4 backdrop-blur-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#CAAA98]/30">
+              <h3 className="text-base font-extrabold text-[#202940]">Add Volunteer or Organizer</h3>
+              <button onClick={() => setOpen(false)} className="p-1 rounded-lg text-[#9A8678] hover:text-[#202940] hover:bg-[#CAAA98]/20 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
               <div className="space-y-1">
-                <label className="text-slate-300 font-medium">Full Name *</label>
+                <label className="text-[#4B4038] font-bold">Full Name *</label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -93,7 +93,7 @@ export function VolunteerAddModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">Email (Optional)</label>
+                  <label className="text-[#4B4038] font-bold">Email (Optional)</label>
                   <Input
                     type="email"
                     value={email}
@@ -103,11 +103,11 @@ export function VolunteerAddModal({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">Role</label>
+                  <label className="text-[#4B4038] font-bold">Role</label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value as any)}
-                    className="w-full h-9 px-3 rounded-md bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none"
+                    className="w-full h-9 px-3 rounded-lg bg-[#FAF8F5] border border-[#CAAA98]/60 text-[#202940] font-semibold text-xs focus:outline-none focus:border-[#202940]"
                   >
                     <option value="VOLUNTEER">Volunteer</option>
                     <option value="ORGANIZER">Organizer</option>
@@ -117,7 +117,7 @@ export function VolunteerAddModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">Team</label>
+                  <label className="text-[#4B4038] font-bold">Team</label>
                   <Input
                     value={team}
                     onChange={(e) => setTeam(e.target.value)}
@@ -126,7 +126,7 @@ export function VolunteerAddModal({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">Availability</label>
+                  <label className="text-[#4B4038] font-bold">Availability</label>
                   <Input
                     value={availability}
                     onChange={(e) => setAvailability(e.target.value)}
@@ -136,7 +136,7 @@ export function VolunteerAddModal({
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-medium">Skills (comma-separated)</label>
+                <label className="text-[#4B4038] font-bold">Skills (comma-separated)</label>
                 <Input
                   value={skills}
                   onChange={(e) => setSkills(e.target.value)}
@@ -144,12 +144,13 @@ export function VolunteerAddModal({
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#CAAA98]/30">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setOpen(false)}
+                  className="border-[#CAAA98]/60 hover:bg-[#CAAA98]/20 text-[#4B4038] font-bold"
                 >
                   Cancel
                 </Button>
@@ -157,7 +158,7 @@ export function VolunteerAddModal({
                   type="submit"
                   size="sm"
                   disabled={loading}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold"
+                  className="bg-[#202940] hover:bg-[#2c395b] text-white font-bold shadow-xs"
                 >
                   {loading && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
                   Add to Roster

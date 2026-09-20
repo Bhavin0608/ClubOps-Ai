@@ -52,50 +52,50 @@ export function HealthSummaryWidget({
       label: "CRITICAL RISK DETECTED",
       sub: "Blocking dependencies or severe volunteer burnout requires immediate action",
       icon: AlertOctagon,
-      badge: "bg-rose-950/80 text-rose-300 border-rose-800",
-      pill: "bg-rose-500",
-      glow: "glow-critical",
+      badge: "bg-rose-50 text-rose-800 border-rose-200 font-bold",
+      pill: "bg-rose-600",
+      glow: "",
     },
     AT_RISK: {
       label: "ELEVATED RISK LEVEL",
       sub: "Upcoming tight deadlines or unassigned high-priority deliverables require attention",
       icon: AlertTriangle,
-      badge: "bg-amber-950/80 text-amber-300 border-amber-800",
-      pill: "bg-amber-500",
+      badge: "bg-amber-50 text-amber-800 border-amber-200 font-bold",
+      pill: "bg-amber-600",
       glow: "",
     },
     ON_TRACK: {
       label: "ALL SYSTEMS NOMINAL",
       sub: "Deliverables on schedule, dependency chain clear, and volunteer load balanced",
       icon: CheckCircle2,
-      badge: "bg-[#87a997]/15 text-[#87a997] border-[#87a997]/30",
-      pill: "bg-[#87a997]",
-      glow: "glow-sage",
+      badge: "bg-emerald-50 text-emerald-800 border-emerald-200 font-bold",
+      pill: "bg-emerald-600",
+      glow: "",
     },
   }[status];
 
   const StatusIcon = statusConfig.icon;
 
   return (
-    <Card className={cn("p-6 sm:p-7 rounded-2xl border border-[#1c294d] bg-[#131e38]/85 shadow-xl backdrop-blur-md", statusConfig.glow)}>
+    <div className={cn("p-6 sm:p-8 rounded-3xl border border-[#CAAA98]/30 bg-white/80 shadow-xs hover:shadow-sm transition-all duration-300 backdrop-blur-xl", statusConfig.glow)}>
       {/* Widget Header Strip */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-6 border-b border-[#1c294d]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-6 border-b border-[#CAAA98]/20">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec] flex-shrink-0 shadow-inner">
-            <Sparkles className="w-6 h-6 text-[#b9a8ec]" />
+          <div className="w-11 h-11 rounded-2xl bg-[#CAAA98]/15 border border-[#CAAA98]/35 flex items-center justify-center text-[#202940] flex-shrink-0 shadow-xs">
+            <Sparkles className="w-5 h-5 text-[#202940]" />
           </div>
 
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-base font-bold text-[#f8fafc] tracking-tight">
-                Event Health & Autonomous Focus Center
+              <h3 className="text-base font-bold text-[#202940] tracking-tight">
+                Operational Equilibrium & Focus
               </h3>
-              <span className={cn("text-xs font-semibold px-3 py-1 rounded-full border flex items-center gap-1.5", statusConfig.badge)}>
-                <StatusIcon className="w-3.5 h-3.5" />
+              <span className={cn("text-xs font-semibold px-3 py-1 rounded-full border flex items-center gap-1.5 shadow-xs", statusConfig.badge)}>
+                <span className={cn("w-1.5 h-1.5 rounded-full", statusConfig.pill)} />
                 {statusConfig.label}
               </span>
             </div>
-            <p className="text-xs text-[#94a3b8] max-w-2xl leading-relaxed">
+            <p className="text-xs text-[#9A8678] max-w-2xl leading-relaxed font-medium">
               {statusConfig.sub}
             </p>
           </div>
@@ -106,10 +106,10 @@ export function HealthSummaryWidget({
           variant="outline"
           onClick={handleGenerateSummary}
           disabled={loading}
-          className="border-[#1c294d] hover:bg-[#1c294d] text-slate-200 text-xs gap-2 h-9 px-4 rounded-xl flex-shrink-0 cursor-pointer"
+          className="border-[#CAAA98]/50 hover:bg-[#CAAA98]/15 text-[#202940] text-xs font-semibold gap-2 h-9 px-4 rounded-xl flex-shrink-0 cursor-pointer shadow-xs transition-all"
         >
-          <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin text-[#b9a8ec]")} />
-          <span>{summary ? "Refresh AI Synthesis" : "Run AI Health Synthesis"}</span>
+          <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin text-[#202940]")} />
+          <span>{summary ? "Re-evaluate Synthesis" : "Run AI Health Synthesis"}</span>
         </Button>
       </div>
 
@@ -117,8 +117,8 @@ export function HealthSummaryWidget({
       <div className="pt-6">
         {summary ? (
           <div className="space-y-5">
-            <div className="p-4 rounded-xl bg-[#0b1329]/90 border border-[#1c294d] text-sm font-medium text-[#f8fafc] leading-relaxed flex items-start gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#b9a8ec] mt-2 flex-shrink-0" />
+            <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#CAAA98]/35 text-xs sm:text-sm font-semibold text-[#202940] leading-relaxed flex items-start gap-3 shadow-xs">
+              <div className="w-2 h-2 rounded-full bg-[#202940] mt-1.5 flex-shrink-0" />
               <div className="flex-1">{summary.headline}</div>
             </div>
 
@@ -127,21 +127,21 @@ export function HealthSummaryWidget({
                 {summary.focus.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-xl bg-[#0b1329]/70 border border-[#1c294d] hover:border-[#b9a8ec]/40 transition-all space-y-2.5 text-xs flex flex-col justify-between"
+                    className="p-5 rounded-2xl bg-white/95 border border-[#CAAA98]/30 hover:border-[#CAAA98]/60 transition-all duration-300 space-y-3 text-xs flex flex-col justify-between shadow-xs hover:shadow-sm"
                   >
-                    <div className="space-y-1.5">
-                      <div className="font-bold text-[#f8fafc] flex items-center gap-2">
-                        <Target className="w-4 h-4 text-[#b9a8ec] flex-shrink-0" />
+                    <div className="space-y-2">
+                      <div className="font-bold text-[#202940] flex items-center gap-2">
+                        <Target className="w-4 h-4 text-[#CAAA98] flex-shrink-0" />
                         <span className="truncate">{item.title}</span>
                       </div>
-                      <p className="text-[#94a3b8] text-[11px] leading-relaxed">
+                      <p className="text-[#4B4038] text-[11px] leading-relaxed font-medium">
                         {item.why}
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-[#1c294d]/70 text-[11px] text-[#b9a8ec] font-semibold flex items-center justify-between">
+                    <div className="pt-3 border-t border-[#CAAA98]/20 text-[11px] text-[#202940] font-bold flex items-center justify-between">
                       <span className="truncate">Action: {item.suggestedAction}</span>
-                      <ArrowRight className="w-3.5 h-3.5 flex-shrink-0 ml-1 opacity-75" />
+                      <ArrowRight className="w-3.5 h-3.5 flex-shrink-0 ml-1 text-[#CAAA98]" />
                     </div>
                   </div>
                 ))}
@@ -149,21 +149,21 @@ export function HealthSummaryWidget({
             )}
           </div>
         ) : (
-          <div className="py-4 px-5 rounded-xl bg-[#0b1329]/50 border border-dashed border-[#1c294d] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94a3b8]">
-            <span>
-              Health status is currently evaluated as <strong className="text-[#f8fafc]">{status}</strong> based on live risk telemetry. Run AI synthesis to generate real-time mitigation suggestions.
+          <div className="py-4 px-6 rounded-2xl bg-[#FAF8F5]/80 border border-dashed border-[#CAAA98]/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#9A8678]">
+            <span className="leading-relaxed">
+              Operational balance is currently evaluated as <strong className="text-[#202940] font-bold">{status}</strong> based on live milestone telemetry. Run synthesis to receive proactive focus directives.
             </span>
             <Button
               size="sm"
               onClick={handleGenerateSummary}
               disabled={loading}
-              className="bg-[#b9a8ec] hover:bg-[#9b88d8] text-[#0b1329] font-semibold text-xs h-8 px-3 rounded-lg flex-shrink-0 cursor-pointer"
+              className="bg-[#202940] hover:bg-[#1a2133] text-white font-semibold text-xs h-8 px-4 rounded-xl flex-shrink-0 cursor-pointer shadow-xs"
             >
               Synthesize Insights
             </Button>
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }

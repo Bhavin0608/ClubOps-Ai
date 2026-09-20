@@ -61,32 +61,32 @@ export function DocumentDropzone({
           handleFileUpload(e.dataTransfer.files[0]);
         }
       }}
-      className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+      className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all ${
         isDragOver
-          ? "border-blue-500 bg-blue-950/20"
-          : "border-slate-800 bg-slate-900/40 hover:border-slate-700"
+          ? "border-[#202940] bg-[#ECE5DE]/60"
+          : "border-[#CAAA98]/60 bg-white/70 hover:border-[#CAAA98] hover:bg-white/90 backdrop-blur-md"
       }`}
     >
       <div className="flex flex-col items-center justify-center space-y-2">
-        <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center text-blue-400">
+        <div className="w-12 h-12 rounded-full bg-[#ECE5DE] flex items-center justify-center text-[#202940]">
           {uploading ? (
-            <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#202940]" />
           ) : (
-            <UploadCloud className="w-6 h-6 text-slate-400" />
+            <UploadCloud className="w-6 h-6 text-[#202940]" />
           )}
         </div>
 
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-slate-200">
+          <p className="text-sm font-bold text-[#202940]">
             {uploading ? "Ingesting and generating embeddings..." : "Upload Club Document or Agreement"}
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#9A8678]">
             Drag and drop or browse from computer. PDF, DOCX, TXT, MD, CSV supported (max 4 MB).
           </p>
         </div>
 
         {!uploading && (
-          <label className="mt-2 inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold cursor-pointer border border-slate-700 transition-colors">
+          <label className="mt-2 inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-[#202940] hover:bg-[#1a2133] text-white text-xs font-semibold cursor-pointer shadow-sm transition-colors">
             <span>Browse File</span>
             <input
               type="file"

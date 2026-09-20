@@ -71,41 +71,41 @@ export function PendingActionCard({ action, onResolved }: PendingActionCardProps
   };
 
   return (
-    <div className="my-2.5 p-3.5 rounded-xl border border-indigo-500/30 bg-indigo-950/20 backdrop-blur-sm shadow-md transition-all">
+    <div className="my-2.5 p-3.5 rounded-2xl border border-[#CAAA98]/60 bg-[#FAF8F5] shadow-xs transition-all">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-300">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[#202940]">
+          <Sparkles className="w-3.5 h-3.5 text-[#202940] animate-pulse" />
           <span>AI Action Request</span>
-          <span className="text-[10px] text-slate-400 font-mono">({action.toolName})</span>
+          <span className="text-[10px] text-[#9A8678] font-mono">({action.toolName})</span>
         </div>
         {status === "PENDING" && (
-          <span className="text-[10px] font-medium text-amber-300 bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded-full">
             Awaiting Approval
           </span>
         )}
         {status === "EXECUTED" && (
-          <span className="text-[10px] font-medium text-emerald-300 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> Executed
+          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3 text-emerald-700" /> Executed
           </span>
         )}
         {status === "REJECTED" && (
-          <span className="text-[10px] font-medium text-slate-400 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-medium text-[#4B4038] bg-[#ECE5DE] border border-[#CAAA98]/40 px-2 py-0.5 rounded-full">
             Rejected
           </span>
         )}
         {status === "FAILED" && (
-          <span className="text-[10px] font-medium text-rose-300 bg-rose-950/70 border border-rose-800/70 px-2 py-0.5 rounded-full flex items-center gap-1">
-            <ShieldAlert className="w-3 h-3" /> Failed
+          <span className="text-[10px] font-bold text-rose-800 bg-rose-50 border border-rose-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <ShieldAlert className="w-3 h-3 text-rose-700" /> Failed
           </span>
         )}
       </div>
 
-      <div className="text-sm font-medium text-slate-100 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80 mb-3 leading-relaxed">
+      <div className="text-sm font-semibold text-[#202940] bg-white p-2.5 rounded-xl border border-[#CAAA98]/40 mb-3 leading-relaxed shadow-xs">
         {action.summary}
       </div>
 
       {errorMsg && (
-        <div className="text-xs text-rose-300 bg-rose-950/40 border border-rose-900/60 p-2 rounded mb-3">
+        <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2 rounded-lg mb-3 font-medium">
           Error: {errorMsg}
         </div>
       )}
@@ -115,7 +115,7 @@ export function PendingActionCard({ action, onResolved }: PendingActionCardProps
           <Button
             size="sm"
             variant="default"
-            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5 h-8 text-xs font-semibold"
+            className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white gap-1.5 h-8 text-xs font-bold shadow-xs"
             onClick={handleConfirm}
             disabled={loading}
           >
@@ -125,11 +125,11 @@ export function PendingActionCard({ action, onResolved }: PendingActionCardProps
           <Button
             size="sm"
             variant="outline"
-            className="border-slate-700 hover:bg-slate-800 text-slate-300 gap-1.5 h-8 text-xs"
+            className="border-[#CAAA98]/60 hover:bg-[#CAAA98]/20 text-[#4B4038] gap-1.5 h-8 text-xs font-semibold"
             onClick={handleReject}
             disabled={loading}
           >
-            <X className="w-3.5 h-3.5 text-slate-400" />
+            <X className="w-3.5 h-3.5 text-[#9A8678]" />
             Reject
           </Button>
         </div>

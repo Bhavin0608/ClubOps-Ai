@@ -12,7 +12,7 @@ interface DeadlinePillProps {
 export function DeadlinePill({ deadline, className, showExactDate = true }: DeadlinePillProps) {
   if (!deadline) {
     return (
-      <span className={cn("inline-flex items-center gap-1 text-xs text-slate-500 font-mono", className)}>
+      <span className={cn("inline-flex items-center gap-1 text-xs text-[#9A8678] font-mono", className)}>
         <Clock className="w-3 h-3" />
         No deadline
       </span>
@@ -26,11 +26,11 @@ export function DeadlinePill({ deadline, className, showExactDate = true }: Dead
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-semibold bg-rose-950/70 text-rose-300 border border-rose-800/60 shadow-sm",
+          "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 shadow-sm",
           className
         )}
       >
-        <AlertCircle className="w-3 h-3 text-rose-400" />
+        <AlertCircle className="w-3 h-3 text-rose-600" />
         <span>{text}{exact}</span>
       </span>
     );
@@ -40,11 +40,11 @@ export function DeadlinePill({ deadline, className, showExactDate = true }: Dead
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-medium bg-amber-950/60 text-amber-300 border border-amber-800/50",
+          "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200",
           className
         )}
       >
-        <Clock className="w-3 h-3 text-amber-400" />
+        <Clock className="w-3 h-3 text-amber-600" />
         <span>{text}{exact}</span>
       </span>
     );
@@ -53,11 +53,11 @@ export function DeadlinePill({ deadline, className, showExactDate = true }: Dead
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs text-slate-300 bg-slate-800/80 border border-slate-700/60",
+        "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-medium text-[#4B4038] bg-white/80 border border-[#CAAA98]/40 shadow-xs",
         className
       )}
     >
-      <Clock className="w-3 h-3 text-slate-400" />
+      <Clock className="w-3 h-3 text-[#9A8678]" />
       <span>{text}{exact}</span>
     </span>
   );

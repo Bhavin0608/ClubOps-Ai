@@ -15,6 +15,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -38,15 +40,35 @@ export default function LoginPage() {
       }
 
       toast.success("Identity verified. Welcome to ClubOps AI.");
-      router.push("/events");
+
+      // Spatial Portal Zoom Sequence
+      // 1. Button reflects verified status
+      setIsSuccess(true);
+
+      // 2. Card initiates 3D spatial forward zoom with optical depth blur
+      setTimeout(() => {
+        setIsExiting(true);
+      }, 70);
+
+      // 3. Navigate through portal directly into /events
+      setTimeout(() => {
+        router.push("/events");
+
+        // Fallback guard to guarantee navigation never freezes
+        setTimeout(() => {
+          if (window.location.pathname !== "/events") {
+            window.location.assign("/events");
+          }
+        }, 350);
+      }, 360);
     } catch (err: any) {
       toast.error(err.message || "Failed to log in");
-    } finally {
       setLoading(false);
     }
   };
 
   const handleDemoSelect = (selectedEmail: string, roleTitle: string) => {
+    if (isSuccess || isExiting) return;
     setEmail(selectedEmail);
     setPassword("demo1234");
     toast.info(`Assigned demo credentials for ${roleTitle}`, {
@@ -55,12 +77,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 z-20 selection:bg-[#CAAA98]/40 selection:text-[#202940]">
-      {/* Editorial Architectural Background (#CAAA98, #9A8678, #4B4038, #202940) */}
-      <AuthBackground />
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 z-20 selection:bg-[#CAAA98]/40 selection:text-[#202940] overflow-hidden">
+      {/* Editorial Architectural Background with Portal Ambient Expansion */}
+      <div className={`fixed inset-0 pointer-events-none ${isExiting ? "animate-portal-bg" : ""}`}>
+        <AuthBackground />
+      </div>
 
-      {/* Centered Frosted Architectural Glassmorphism Card with Interactive 3D Tilt */}
-      <AuthCard>
+      {/* Centered Frosted Architectural Glassmorphism Card with 3D Tilt & Spatial Portal Zoom */}
+      <AuthCard isExiting={isExiting}>
         <AuthBrandHeader />
         <DemoRoleSelector activeEmail={email} onSelect={handleDemoSelect} />
         <LoginForm
@@ -70,6 +94,7 @@ export default function LoginPage() {
           setPassword={setPassword}
           onSubmit={handleLogin}
           loading={loading}
+          isSuccess={isSuccess}
         />
         <AuthFooter />
       </AuthCard>

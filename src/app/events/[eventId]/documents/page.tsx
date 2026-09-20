@@ -40,13 +40,13 @@ export default function DocumentsPage(props: {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CAAA98]/40">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-blue-400" />
+          <h2 className="text-lg font-bold text-[#202940] flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-[#202940]" />
             Club Knowledge & Document Repository (RAG)
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#9A8678]">
             Upload PDF, DOCX, and TXT agreements. Extracted, vectorized, and retrieved with verbatim citations.
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function DocumentsPage(props: {
       <DocumentDropzone eventId={eventId} onUploaded={fetchDocs} />
 
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <h3 className="text-xs font-bold text-[#202940] uppercase tracking-wider">
           Indexed Documents ({docs.length})
         </h3>
         <DocumentList

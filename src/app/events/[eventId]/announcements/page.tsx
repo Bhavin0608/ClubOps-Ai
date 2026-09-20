@@ -33,13 +33,13 @@ export default function AnnouncementsPage(props: {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CAAA98]/40">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Megaphone className="w-5 h-5 text-blue-400" />
+          <h2 className="text-lg font-bold text-[#202940] flex items-center gap-2">
+            <Megaphone className="w-5 h-5 text-[#202940]" />
             Announcements & Broadcasts
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#9A8678]">
             Draft announcements with AI, review in inert drafts, and publish with one-click WhatsApp copy
           </p>
         </div>

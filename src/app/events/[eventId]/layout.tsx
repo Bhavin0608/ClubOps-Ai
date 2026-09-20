@@ -46,7 +46,7 @@ export default function EventLayout({
   }, [eventId]);
 
   return (
-    <div className="min-h-screen bg-[#0b1329]/90 text-[#f8fafc] flex">
+    <div className="min-h-screen bg-[#FAF8F5] text-[#4B4038] flex">
       {/* Sidebar */}
       <AppSidebar
         eventId={eventId}

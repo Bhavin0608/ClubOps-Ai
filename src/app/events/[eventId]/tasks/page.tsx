@@ -37,13 +37,13 @@ export default function TasksPage(props: {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CAAA98]/30">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <CheckSquare className="w-5 h-5 text-blue-400" />
+          <h2 className="text-lg font-extrabold text-[#202940] flex items-center gap-2">
+            <CheckSquare className="w-5 h-5 text-[#202940]" />
             Task Management & Operations
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#4B4038] font-medium">
             Monitor deliverables, filter by owner or team, and inspect prerequisite dependencies
           </p>
         </div>

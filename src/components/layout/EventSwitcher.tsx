@@ -36,30 +36,30 @@ export function EventSwitcher({ currentEventId }: { currentEventId?: string }) {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-3 py-2 text-left rounded-lg bg-[#131e38] border border-[#1c294d] hover:border-[#b9a8ec]/40 text-[#f8fafc] transition-colors cursor-pointer"
+        className="flex items-center justify-between w-full px-3 py-2 text-left rounded-xl bg-white/85 border border-[#CAAA98]/60 hover:border-[#CAAA98] text-[#202940] shadow-xs transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="w-6 h-6 rounded bg-[#b9a8ec]/15 border border-[#b9a8ec]/30 flex items-center justify-center text-[#b9a8ec] flex-shrink-0">
+          <div className="w-6 h-6 rounded-lg bg-[#CAAA98]/25 border border-[#CAAA98]/50 flex items-center justify-center text-[#202940] flex-shrink-0 font-bold">
             <Calendar className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <div className="text-xs font-semibold truncate text-[#f8fafc]">
+            <div className="text-xs font-bold truncate text-[#202940]">
               {currentEvent?.name || "Select Event"}
             </div>
-            <div className="text-[10px] text-[#94a3b8] flex items-center gap-1 font-mono">
+            <div className="text-[10px] text-[#9A8678] flex items-center gap-1 font-mono">
               <span>{currentEvent?.role || "ORGANIZER"}</span>
               <span>·</span>
-              <span className="text-[#87a997] font-medium">{currentEvent?.status || "ACTIVE"}</span>
+              <span className="text-emerald-700 font-semibold">{currentEvent?.status || "ACTIVE"}</span>
             </div>
           </div>
         </div>
-        <ChevronDown className="w-4 h-4 text-[#94a3b8] flex-shrink-0 ml-1" />
+        <ChevronDown className="w-4 h-4 text-[#9A8678] flex-shrink-0 ml-1" />
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-lg bg-[#131e38] border border-[#1c294d] shadow-2xl overflow-hidden py-1 backdrop-blur-xl">
+          <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-xl bg-white/95 border border-[#CAAA98]/60 shadow-xl overflow-hidden py-1 backdrop-blur-2xl">
             <div className="max-h-60 overflow-y-auto">
               {events.map((e) => (
                 <button
@@ -69,28 +69,28 @@ export function EventSwitcher({ currentEventId }: { currentEventId?: string }) {
                     router.push(`/events/${e.id}`);
                   }}
                   className={cn(
-                    "w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-[#1c294d] transition-colors cursor-pointer",
-                    e.id === currentEventId ? "text-[#b9a8ec] font-medium bg-[#b9a8ec]/15" : "text-slate-300"
+                    "w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-[#CAAA98]/20 transition-colors cursor-pointer",
+                    e.id === currentEventId ? "text-[#202940] font-bold bg-[#CAAA98]/25" : "text-[#4B4038]"
                   )}
                 >
                   <div className="truncate pr-2">
-                    <div className="truncate font-medium">{e.name}</div>
-                    <div className="text-[10px] text-[#94a3b8]">{e.role}</div>
+                    <div className="truncate font-semibold">{e.name}</div>
+                    <div className="text-[10px] text-[#9A8678]">{e.role}</div>
                   </div>
-                  {e.id === currentEventId && <Check className="w-3.5 h-3.5 text-[#b9a8ec] flex-shrink-0" />}
+                  {e.id === currentEventId && <Check className="w-3.5 h-3.5 text-[#202940] flex-shrink-0 font-bold" />}
                 </button>
               ))}
             </div>
 
-            <div className="border-t border-[#1c294d] pt-1 mt-1">
+            <div className="border-t border-[#CAAA98]/30 pt-1 mt-1">
               <button
                 onClick={() => {
                   setOpen(false);
                   router.push("/events");
                 }}
-                className="w-full px-3 py-1.5 text-left text-xs text-[#b9a8ec] hover:bg-[#1c294d] flex items-center gap-1.5 font-medium transition-colors cursor-pointer"
+                className="w-full px-3 py-1.5 text-left text-xs text-[#202940] hover:bg-[#CAAA98]/20 flex items-center gap-1.5 font-bold transition-colors cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 text-[#202940]" />
                 <span>Create or Switch Event</span>
               </button>
             </div>

@@ -58,7 +58,7 @@ export function DeadlinesView({ tasks, onTaskUpdated }: DeadlinesViewProps) {
       label: "Later",
       count: laterTasks.length,
       icon: Calendar,
-      color: "text-blue-400",
+      color: "text-[#202940]",
       list: laterTasks,
     },
     {
@@ -66,7 +66,7 @@ export function DeadlinesView({ tasks, onTaskUpdated }: DeadlinesViewProps) {
       label: "No Deadline",
       count: noDeadlineTasks.length,
       icon: HelpCircle,
-      color: "text-slate-400",
+      color: "text-[#9A8678]",
       list: noDeadlineTasks,
     },
   ];
@@ -76,7 +76,7 @@ export function DeadlinesView({ tasks, onTaskUpdated }: DeadlinesViewProps) {
   return (
     <div className="space-y-4">
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-[#CAAA98]/30 pb-3">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -84,17 +84,17 @@ export function DeadlinesView({ tasks, onTaskUpdated }: DeadlinesViewProps) {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 isActive
-                  ? "bg-slate-800 text-white border border-slate-700 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                  ? "bg-[#202940] text-white shadow-xs"
+                  : "bg-white/80 text-[#4B4038] hover:bg-[#CAAA98]/20 border border-[#CAAA98]/40"
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${tab.color}`} />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[#CAAA98]" : tab.color}`} />
               <span>{tab.label}</span>
               <span
-                className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                  isActive ? "bg-slate-950 text-slate-200" : "bg-slate-900 text-slate-400"
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                  isActive ? "bg-[#CAAA98] text-[#202940] font-bold" : "bg-[#ECE5DE] text-[#4B4038]"
                 }`}
               >
                 {tab.count}
@@ -107,22 +107,22 @@ export function DeadlinesView({ tasks, onTaskUpdated }: DeadlinesViewProps) {
       {/* Task List for current tab */}
       <div className="space-y-2.5">
         {currentTab.list.length === 0 ? (
-          <div className="text-center py-12 rounded-xl border border-dashed border-slate-800 text-xs text-slate-400">
+          <div className="text-center py-12 rounded-2xl border border-dashed border-[#CAAA98]/60 bg-white/60 text-xs text-[#9A8678] font-medium">
             No tasks in this category
           </div>
         ) : (
           currentTab.list.map((task) => (
             <div
               key={task.id}
-              className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              className="p-4 rounded-2xl bg-white/90 border border-[#CAAA98]/40 hover:border-[#CAAA98] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs"
             >
               <div className="space-y-1">
-                <div className="font-semibold text-slate-100 flex items-center gap-2">
+                <div className="font-bold text-[#202940] flex items-center gap-2">
                   <span>{task.title}</span>
                   <SeverityBadge level={task.priority} showIcon={false} />
                 </div>
-                <div className="text-[11px] text-slate-400 flex items-center gap-2">
-                  <span>Owner: {task.owner?.name ?? "Unassigned"}</span>
+                <div className="text-[11px] text-[#4B4038] flex items-center gap-2 font-medium">
+                  <span>Owner: <strong className="text-[#202940]">{task.owner?.name ?? "Unassigned"}</strong></span>
                   {task.team && <span>· Team: {task.team}</span>}
                 </div>
               </div>

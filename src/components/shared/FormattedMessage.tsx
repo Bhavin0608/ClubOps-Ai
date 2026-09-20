@@ -48,9 +48,9 @@ export function FormattedMessage({ content }: FormattedMessageProps) {
           return (
             <div
               key={rIdx}
-              className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700/80 transition-all text-xs space-y-1.5 shadow-sm"
+              className="p-3 rounded-xl bg-white/90 border border-[#CAAA98]/50 hover:border-[#CAAA98] transition-all text-xs space-y-1.5 shadow-sm"
             >
-              <div className="font-semibold text-slate-100 flex items-start justify-between gap-2">
+              <div className="font-bold text-[#202940] flex items-start justify-between gap-2">
                 <span>{renderInline(primaryText)}</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
@@ -63,17 +63,17 @@ export function FormattedMessage({ content }: FormattedMessageProps) {
                   return (
                     <span
                       key={cIdx}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] ${
                         isStatus && /blocked/i.test(cell)
-                          ? "bg-red-950/40 text-red-300 border-red-800/50"
+                          ? "bg-rose-50 text-rose-800 border-rose-300 font-semibold"
                           : isStatus && /done|completed/i.test(cell)
-                          ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/50"
+                          ? "bg-emerald-50 text-emerald-800 border-emerald-300 font-semibold"
                           : isPriority && /critical|high/i.test(cell)
-                          ? "bg-amber-950/40 text-amber-300 border-amber-800/50"
-                          : "bg-slate-950 text-slate-300 border-slate-800"
+                          ? "bg-amber-50 text-amber-800 border-amber-300 font-semibold"
+                          : "bg-[#FAF8F5] text-[#202940] border-[#CAAA98]/40"
                       }`}
                     >
-                      {label && <span className="text-slate-400 font-medium">{label}:</span>}
+                      {label && <span className="text-[#9A8678] font-medium">{label}:</span>}
                       <span>{renderInline(cell)}</span>
                     </span>
                   );
@@ -92,10 +92,10 @@ export function FormattedMessage({ content }: FormattedMessageProps) {
   const flushList = (key: number) => {
     if (listItems.length === 0) return;
     elements.push(
-      <ul key={`list-${key}`} className="my-2 space-y-1.5 text-xs text-slate-200">
+      <ul key={`list-${key}`} className="my-2 space-y-1.5 text-xs text-[#4B4038]">
         {listItems.map((item, i) => (
           <li key={i} className="flex items-start gap-2.5 leading-relaxed">
-            <span className="text-blue-400 font-bold select-none text-[12px] leading-none mt-1.5">•</span>
+            <span className="text-[#202940] font-bold select-none text-[12px] leading-none mt-1.5">•</span>
             <div className="flex-1">{renderInline(item)}</div>
           </li>
         ))}
@@ -135,8 +135,8 @@ export function FormattedMessage({ content }: FormattedMessageProps) {
       const headingText = trimmed.replace(/^#{3,4}\s+/, "").replace(/^\d+\.\s*/, "");
       elements.push(
         <div key={i} className="pt-3 pb-1 flex items-center gap-2">
-          <div className="w-1.5 h-3 bg-blue-500 rounded-full" />
-          <span className="text-xs font-semibold text-blue-300 tracking-wide uppercase">
+          <div className="w-1.5 h-3 bg-[#202940] rounded-full" />
+          <span className="text-xs font-bold text-[#202940] tracking-wide uppercase">
             {renderInline(headingText)}
           </span>
         </div>
@@ -147,8 +147,8 @@ export function FormattedMessage({ content }: FormattedMessageProps) {
     if (trimmed.startsWith("## ") || trimmed.startsWith("# ")) {
       const headingText = trimmed.replace(/^#+\s+/, "");
       elements.push(
-        <div key={i} className="pt-3.5 pb-1.5 border-b border-slate-800/80 mb-1">
-          <span className="text-sm font-bold text-white">
+        <div key={i} className="pt-3.5 pb-1.5 border-b border-[#CAAA98]/40 mb-1">
+          <span className="text-sm font-bold text-[#202940]">
             {renderInline(headingText)}
           </span>
         </div>
@@ -158,7 +158,7 @@ export function FormattedMessage({ content }: FormattedMessageProps) {
 
     // Dividers: render subtle spacing
     if (trimmed === "---" || trimmed === "***") {
-      elements.push(<div key={i} className="my-2 border-t border-slate-800/60" />);
+      elements.push(<div key={i} className="my-2 border-t border-[#CAAA98]/40" />);
       continue;
     }
 
@@ -169,7 +169,7 @@ export function FormattedMessage({ content }: FormattedMessageProps) {
 
     // Normal paragraph
     elements.push(
-      <p key={i} className="text-xs leading-relaxed text-slate-200 my-1">
+      <p key={i} className="text-xs leading-relaxed text-[#4B4038] my-1">
         {renderInline(trimmed)}
       </p>
     );
@@ -196,7 +196,7 @@ function renderInline(text: string): React.ReactNode {
     const token = match[0];
     if (token.startsWith("**") && token.endsWith("**")) {
       parts.push(
-        <strong key={match.index} className="font-semibold text-white">
+        <strong key={match.index} className="font-bold text-[#202940]">
           {token.slice(2, -2)}
         </strong>
       );
@@ -204,14 +204,14 @@ function renderInline(text: string): React.ReactNode {
       parts.push(
         <code
           key={match.index}
-          className="px-1.5 py-0.5 rounded bg-slate-950 text-blue-300 font-mono text-[11px] border border-slate-800"
+          className="px-1.5 py-0.5 rounded bg-[#ECE5DE] text-[#202940] font-mono text-[11px] border border-[#CAAA98]/60"
         >
           {token.slice(1, -1)}
         </code>
       );
     } else if (token.startsWith("*") && token.endsWith("*") && token.length > 2) {
       parts.push(
-        <em key={match.index} className="italic text-slate-300">
+        <em key={match.index} className="italic text-[#9A8678]">
           {token.slice(1, -1)}
         </em>
       );

@@ -93,32 +93,34 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
       <Button
         size="sm"
         onClick={() => setOpen(true)}
-        className="bg-purple-600 hover:bg-purple-500 text-white gap-1.5 text-xs font-semibold h-8"
+        className="bg-[#202940] hover:bg-[#2c395b] text-white gap-1.5 text-xs font-bold h-8 shadow-xs"
       >
         <Plus className="w-3.5 h-3.5" />
         Process Meeting
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#202940]/40 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-2xl bg-white/95 border border-[#CAAA98]/60 rounded-2xl shadow-2xl p-6 space-y-4 backdrop-blur-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#CAAA98]/30">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-400" />
-                <h3 className="text-base font-semibold text-white">Process Notes or Transcript</h3>
+                <div className="w-7 h-7 rounded-lg bg-[#202940] flex items-center justify-center text-[#CAAA98]">
+                  <Sparkles className="w-4 h-4 text-[#CAAA98]" />
+                </div>
+                <h3 className="text-base font-extrabold text-[#202940]">Process Notes or Transcript</h3>
               </div>
-              <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setOpen(false)} className="p-1 rounded-lg text-[#9A8678] hover:text-[#202940] hover:bg-[#CAAA98]/20 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
-              <div className="flex items-center justify-between bg-purple-950/30 border border-purple-800/40 p-2.5 rounded-lg">
-                <span className="text-purple-300">Quick Demo: Load sample transcript from Scene 3</span>
+              <div className="flex items-center justify-between bg-[#FAF8F5] border border-[#CAAA98]/40 p-3 rounded-xl shadow-xs">
+                <span className="text-[#4B4038] font-medium">Quick Demo: Load sample transcript from Scene 3</span>
                 <button
                   type="button"
                   onClick={handlePasteDemoTranscript}
-                  className="px-2.5 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-semibold"
+                  className="px-3 py-1 rounded-lg bg-[#202940] hover:bg-[#2c395b] text-white text-[11px] font-bold shadow-xs cursor-pointer"
                 >
                   Paste Appendix A.1
                 </button>
@@ -126,7 +128,7 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">Meeting Title *</label>
+                  <label className="text-[#4B4038] font-bold">Meeting Title *</label>
                   <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -136,7 +138,7 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">Date *</label>
+                  <label className="text-[#4B4038] font-bold">Date *</label>
                   <Input
                     type="date"
                     value={meetingDate}
@@ -147,7 +149,7 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-medium">Participants (comma-separated)</label>
+                <label className="text-[#4B4038] font-bold">Participants (comma-separated)</label>
                 <Input
                   value={participants}
                   onChange={(e) => setParticipants(e.target.value)}
@@ -156,7 +158,7 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-medium">Transcript or Notes *</label>
+                <label className="text-[#4B4038] font-bold">Transcript or Notes *</label>
                 <Textarea
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
@@ -167,12 +169,13 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#CAAA98]/30">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setOpen(false)}
+                  className="border-[#CAAA98]/60 hover:bg-[#CAAA98]/20 text-[#4B4038] font-bold"
                 >
                   Cancel
                 </Button>
@@ -180,7 +183,7 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
                   type="submit"
                   size="sm"
                   disabled={loading}
-                  className="bg-purple-600 hover:bg-purple-500 text-white font-semibold"
+                  className="bg-[#202940] hover:bg-[#2c395b] text-white font-bold shadow-xs"
                 >
                   {loading ? (
                     <>
@@ -189,7 +192,7 @@ Aman: Great. That's everything. Let's meet again on Thursday.`);
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5 text-[#CAAA98]" />
                       Save & Extract Items
                     </>
                   )}

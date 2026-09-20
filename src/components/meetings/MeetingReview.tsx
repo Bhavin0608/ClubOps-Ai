@@ -112,22 +112,22 @@ export function MeetingReview({
     <div className="space-y-6">
       {/* Summary & Decisions Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2">
-          <div className="text-xs font-semibold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
+        <div className="p-5 rounded-2xl bg-white/85 border border-[#CAAA98]/40 shadow-sm space-y-2 backdrop-blur-md">
+          <div className="text-[11px] font-bold text-[#202940] uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#CAAA98]" />
             AI Executive Summary
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed">
+          <p className="text-xs text-[#4B4038] leading-relaxed">
             {summary || "No summary available."}
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2">
-          <div className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+        <div className="p-5 rounded-2xl bg-white/85 border border-[#CAAA98]/40 shadow-sm space-y-2 backdrop-blur-md">
+          <div className="text-[11px] font-bold text-[#202940] uppercase tracking-wider flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Decisions Recorded ({decisions.length})
           </div>
-          <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+          <ul className="text-xs text-[#4B4038] space-y-1.5 list-disc list-inside">
             {decisions.map((d, i) => (
               <li key={i} className="leading-relaxed">
                 {d}
@@ -140,13 +140,13 @@ export function MeetingReview({
       {/* Review Screen Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
         <div>
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <h3 className="text-sm font-bold text-[#202940] flex items-center gap-2">
             Extracted Action Items Review
-            <span className="text-[10px] font-mono bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono bg-[#ECE5DE] text-[#202940] border border-[#CAAA98]/50 px-2.5 py-0.5 rounded-full font-semibold">
               {pendingItems.length} Proposed · {approvedItems.length} Approved
             </span>
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#9A8678]">
             Verify extracted owners and dates before converting items into live tasks
           </p>
         </div>
@@ -156,12 +156,12 @@ export function MeetingReview({
             size="sm"
             onClick={handleCreateTasks}
             disabled={creating || selectedItemIds.length === 0}
-            className="bg-purple-600 hover:bg-purple-500 text-white gap-1.5 text-xs font-semibold h-9 shadow-lg shadow-purple-500/20"
+            className="bg-[#202940] hover:bg-[#1a2133] text-white gap-1.5 text-xs font-semibold h-9 shadow-md shadow-[#202940]/15"
           >
             {creating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-4 h-4 text-[#CAAA98]" />
             )}
             Create {selectedItemIds.length} Tasks
           </Button>
@@ -180,10 +180,10 @@ export function MeetingReview({
               key={item.id}
               className={`p-4 rounded-xl border transition-all ${
                 isCreated
-                  ? "bg-slate-900/30 border-slate-800/60 opacity-80"
+                  ? "bg-[#ECE5DE]/30 border-[#CAAA98]/30 opacity-75"
                   : isSelected
-                  ? "bg-slate-900/90 border-purple-500/40 shadow-sm"
-                  : "bg-slate-900/50 border-slate-800"
+                  ? "bg-white border-[#202940]/50 shadow-md ring-1 ring-[#202940]/10"
+                  : "bg-white/80 border-[#CAAA98]/40 hover:border-[#CAAA98] hover:shadow-sm"
               }`}
             >
               <div className="flex items-start gap-3">
@@ -192,66 +192,66 @@ export function MeetingReview({
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggleSelect(item.id)}
-                    className="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-950 text-purple-600 focus:ring-purple-500 cursor-pointer"
+                    className="mt-1 h-4 w-4 rounded border-[#CAAA98] text-[#202940] accent-[#202940] focus:ring-[#202940] cursor-pointer"
                   />
                 )}
 
                 <div className="flex-1 space-y-2 text-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-semibold text-slate-100 text-sm">{item.title}</div>
+                    <div className="font-semibold text-[#202940] text-sm">{item.title}</div>
                     <div className="flex items-center gap-2">
                       <span
                         className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
                           confidencePercent >= 85
-                            ? "bg-emerald-950/70 text-emerald-300 border-emerald-800/60"
-                            : "bg-amber-950/70 text-amber-300 border-amber-800/60"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-300 font-semibold"
+                            : "bg-amber-50 text-amber-800 border-amber-300 font-semibold"
                         }`}
                       >
                         Confidence: {confidencePercent}%
                       </span>
                       <SeverityBadge level={item.priority} showIcon={false} />
                       {isCreated && (
-                        <span className="text-[10px] font-medium text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <Check className="w-3 h-3" /> Converted to Task
+                        <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-full flex items-center gap-1 font-semibold">
+                          <Check className="w-3 h-3 text-emerald-600" /> Converted to Task
                         </span>
                       )}
                     </div>
                   </div>
 
                   {item.description && (
-                    <p className="text-slate-400 text-xs">{item.description}</p>
+                    <p className="text-[#4B4038] text-xs">{item.description}</p>
                   )}
 
                   {/* Verbatim Quote */}
                   {item.evidence && (
-                    <div className="p-2 rounded bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 flex items-start gap-1.5 font-mono">
-                      <Quote className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" />
+                    <div className="p-2.5 rounded-lg bg-[#FAF8F5] border border-[#CAAA98]/40 text-[11px] text-[#4B4038] flex items-start gap-2 font-mono">
+                      <Quote className="w-3 h-3 text-[#CAAA98] flex-shrink-0 mt-0.5" />
                       <span>&ldquo;{item.evidence}&rdquo;</span>
                     </div>
                   )}
 
                   {/* Ambiguity Note if any */}
                   {item.ambiguityNote && (
-                    <div className="text-[11px] text-amber-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                    <div className="text-[11px] text-amber-800 font-medium flex items-center gap-1.5 bg-amber-50 p-1.5 rounded border border-amber-200">
+                      <AlertCircle className="w-3 h-3 flex-shrink-0 text-amber-600" />
                       <span>{item.ambiguityNote}</span>
                     </div>
                   )}
 
                   {/* Controls: Owner Selector & Deadline */}
-                  <div className="flex flex-wrap items-center gap-4 pt-1 text-slate-400">
+                  <div className="flex flex-wrap items-center gap-4 pt-1 text-[#9A8678]">
                     <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-slate-500" />
+                      <User className="w-3.5 h-3.5 text-[#CAAA98]" />
                       <span className="text-[11px]">Owner:</span>
                       {isCreated ? (
-                        <span className="text-slate-200 font-medium">
+                        <span className="text-[#202940] font-semibold">
                           {item.owner?.name ?? "Unassigned"}
                         </span>
                       ) : (
                         <select
                           value={item.ownerId || ""}
                           onChange={(e) => handleUpdateItemOwner(item.id, e.target.value)}
-                          className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded px-2 py-0.5 focus:outline-none"
+                          className="bg-white border border-[#CAAA98]/60 text-[#202940] text-xs rounded-md px-2.5 py-1 focus:outline-none focus:border-[#202940] cursor-pointer"
                         >
                           <option value="">(Unassigned)</option>
                           {members.map((m) => (
@@ -264,18 +264,18 @@ export function MeetingReview({
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      <Clock className="w-3.5 h-3.5 text-[#CAAA98]" />
                       <span className="text-[11px]">Deadline:</span>
                       {item.deadline ? (
-                        <span className="text-slate-200 font-mono">
+                        <span className="text-[#202940] font-mono font-medium">
                           {formatDisplayDate(item.deadline)}
                         </span>
                       ) : item.deadlineRaw ? (
-                        <span className="text-amber-300 font-mono text-[11px]">
+                        <span className="text-amber-800 font-mono text-[11px] font-medium bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                           &ldquo;{item.deadlineRaw}&rdquo; (Needs date)
                         </span>
                       ) : (
-                        <span className="text-slate-500 font-mono">No deadline</span>
+                        <span className="text-[#9A8678] font-mono">No deadline</span>
                       )}
                     </div>
                   </div>

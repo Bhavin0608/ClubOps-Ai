@@ -2,101 +2,89 @@
 
 @layer base {
   :root {
-    /* Deep Navy Blue & Luxury Evening Spa Palette */
-    --navy-dark: #0b1329;
-    --navy-card: #131e38;
-    --navy-hover: #1c294d;
-    --navy-border: #1c294d;
+    /* Architectural Light & Luminous Sandstone Palette */
+    --sandstone: #CAAA98;
+    --taupe: #9A8678;
+    --espresso: #4B4038;
+    --prussian-navy: #202940;
+    --linen-bg: #FAF8F5;
+    --secondary-surface: #ECE5DE;
 
-    /* Accents */
-    --lavender: #b9a8ec;
-    --lavender-deep: #9b88d8;
-    --sage: #87a997;
-    --sage-deep: #6b8c7b;
-
-    /* Typography */
-    --crisp-white: #f8fafc;
-    --text-muted: #94a3b8;
-
-    /* Semantic HSL tokens */
-    --background: 224 58% 10.2%;   /* #0b1329 */
-    --foreground: 210 40% 98%;      /* #f8fafc */
-    --card: 223 49% 14.7%;          /* #131e38 */
-    --card-foreground: 210 40% 98%;
-    --popover: 223 49% 14.7%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 256 65% 79%;         /* #b9a8ec */
-    --primary-foreground: 224 58% 10.2%;
-    --secondary: 222 46% 20.8%;     /* #1c294d */
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 46% 20.8%;
-    --muted-foreground: 215 16% 65%; /* #94a3b8 */
-    --accent: 256 65% 79%;
-    --accent-foreground: 224 58% 10.2%;
+    /* Semantic tokens for architectural light */
+    --background: 36 29% 97%;       /* #FAF8F5 */
+    --foreground: 24 14% 26%;       /* #4B4038 */
+    --card: 0 0% 100%;              /* #ffffff */
+    --card-foreground: 24 14% 26%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 14% 26%;
+    --primary: 224 33% 19%;         /* #202940 */
+    --primary-foreground: 36 29% 97%;
+    --secondary: 30 20% 90%;        /* #ECE5DE */
+    --secondary-foreground: 224 33% 19%;
+    --muted: 30 20% 90%;
+    --muted-foreground: 25 15% 54%; /* #9A8678 */
+    --accent: 23 27% 69%;           /* #CAAA98 */
+    --accent-foreground: 224 33% 19%;
     --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 222 46% 20.8%;        /* #1c294d */
-    --input: 222 46% 20.8%;
-    --ring: 256 65% 79%;            /* #b9a8ec */
-    --radius: 0.625rem;
+    --destructive-foreground: 36 29% 97%;
+    --border: 23 27% 69%;           /* #CAAA98 */
+    --input: 23 27% 69%;
+    --ring: 224 33% 19%;            /* #202940 */
+    --radius: 0.75rem;
   }
 }
 
 body {
-  background-color: #0b1329;
-  color: #f8fafc;
+  background-color: #FAF8F5;
+  color: #4B4038;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Standard native cursor restored */
-
-/* Custom command-center styling & luxury scrollbars */
+/* Custom architectural scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b1329;
+  background: #FAF8F5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1c294d;
+  background: #CAAA98;
   border-radius: 3px;
-  border: 1px solid rgba(185, 168, 236, 0.1);
+  border: 1px solid rgba(202, 170, 152, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9b88d8;
+  background: #9A8678;
 }
 
-/* Rich nocturnal glass containers */
+/* Luminous Architectural Glass Containers */
 .glass-panel {
-  background: rgba(19, 30, 56, 0.82);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(185, 168, 236, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(202, 170, 152, 0.4);
 }
 
 .glass-card {
-  background: rgba(19, 30, 56, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(28, 41, 77, 0.8);
-  box-shadow: 0 8px 28px -4px rgba(5, 9, 20, 0.6);
-}
-
-.glow-lavender {
-  box-shadow: 0 0 22px -3px rgba(185, 168, 236, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(202, 170, 152, 0.45);
+  box-shadow: 0 10px 30px -5px rgba(32, 41, 64, 0.06);
 }
 
 .glow-primary {
-  box-shadow: 0 0 22px -3px rgba(185, 168, 236, 0.35);
+  box-shadow: 0 0 22px -3px rgba(32, 41, 64, 0.15);
 }
 
-.glow-sage {
-  box-shadow: 0 0 22px -3px rgba(135, 169, 151, 0.35);
+.glow-sandstone {
+  box-shadow: 0 0 22px -3px rgba(202, 170, 152, 0.35);
 }
 
 .glow-critical {
-  box-shadow: 0 0 22px -3px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 22px -3px rgba(239, 68, 68, 0.2);
 }
 
 /* Luminous Non-Dark UI Design System & Animations */
@@ -189,6 +177,21 @@ body {
   animation: gradient-flow 6s ease infinite;
 }
 
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fade-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .animate-card-in {
   animation: card-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -271,6 +274,67 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(202, 170, 152, 0.4);
 }
+
+/* Spatial Portal Zoom Transition (Apple Vision Pro / Spatial Glass Style) */
+@keyframes portal-zoom-out {
+  0% {
+    transform: scale(1) translateZ(0px);
+    filter: blur(0px);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.08) translateZ(30px);
+    filter: blur(2px);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.45) translateZ(120px);
+    filter: blur(24px);
+    opacity: 0;
+  }
+}
+
+@keyframes portal-background-pulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    transform: scale(1.18);
+    filter: brightness(1.2) contrast(1.05);
+  }
+}
+
+@keyframes portal-page-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateZ(-40px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0px);
+    filter: blur(0px);
+  }
+}
+
+.animate-portal-zoom {
+  animation: portal-zoom-out 0.46s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+.animate-portal-bg {
+  animation: portal-background-pulse 0.5s ease-out forwards;
+  will-change: transform, filter;
+}
+
+.animate-portal-enter {
+  animation: portal-page-enter 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+
+
 
 
 
