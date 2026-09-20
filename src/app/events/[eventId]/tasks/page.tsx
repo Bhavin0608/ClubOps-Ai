@@ -52,10 +52,10 @@ export default function TasksPage(props: {
         <div>
           <h2 className="text-lg font-extrabold text-[#202940] flex items-center gap-2">
             <CheckSquare className="w-5 h-5 text-[#202940]" />
-            Task Management & Operations
+            Tasks & Workflows Command Center
           </h2>
           <p className="text-xs text-[#4B4038] font-medium">
-            Monitor deliverables, filter by owner or team, and inspect prerequisite dependencies
+            Track operational pipeline momentum, departmental deliverables, and resolve dependency bottlenecks
           </p>
         </div>
 
