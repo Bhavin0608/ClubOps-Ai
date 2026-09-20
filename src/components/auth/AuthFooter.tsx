@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export function AuthFooter() {
   return (
-    <div className="text-center pt-1">
-      <p className="text-xs text-[#4B4038]">
+    <div className="text-center pt-0">
+      <p className="text-[11px] sm:text-xs text-[#4B4038]">
         Need an organizer access permit?{" "}
         <Link
           href="/register"

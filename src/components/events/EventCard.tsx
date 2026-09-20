@@ -23,7 +23,7 @@ interface EventCardProps {
 
 export function EventCard({ event, onSelect }: EventCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50, isHovered: false });
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, isHovered: false });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = cardRef.current;
@@ -43,8 +43,6 @@ export function EventCard({ event, onSelect }: EventCardProps) {
     setTilt({
       rotateX: -normY * maxTilt,
       rotateY: normX * maxTilt,
-      glareX: (x / rect.width) * 100,
-      glareY: (y / rect.height) * 100,
       isHovered: true,
     });
   };
@@ -53,8 +51,6 @@ export function EventCard({ event, onSelect }: EventCardProps) {
     setTilt({
       rotateX: 0,
       rotateY: 0,
-      glareX: 50,
-      glareY: 50,
       isHovered: false,
     });
   };
@@ -65,18 +61,6 @@ export function EventCard({ event, onSelect }: EventCardProps) {
       className="relative cursor-pointer select-none"
       onClick={onSelect}
     >
-      {/* Dynamic Halo Glow on Tilt */}
-      <div
-        className="absolute -inset-1 rounded-[28px] bg-gradient-to-br from-[#CAAA98]/30 via-transparent to-[#202940]/15 blur-xl -z-10 pointer-events-none transition-all duration-300"
-        style={{
-          transform: tilt.isHovered
-            ? `translate3d(${tilt.rotateY * 1.5}px, ${-tilt.rotateX * 1.5}px, 0)`
-            : "translate3d(0, 0, 0)",
-          opacity: tilt.isHovered ? 1 : 0.4,
-        }}
-        aria-hidden="true"
-      />
-
       {/* Main Glassmorphic Card Container */}
       <div
         ref={cardRef}
@@ -96,15 +80,6 @@ export function EventCard({ event, onSelect }: EventCardProps) {
         }}
         className="group relative rounded-[26px] glass-architectural overflow-hidden p-6 sm:p-7 space-y-5 transition-colors"
       >
-        {/* Specular Glare on Hover */}
-        <div
-          className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-10"
-          style={{
-            opacity: tilt.isHovered ? 1 : 0,
-            background: `radial-gradient(circle 280px at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.45) 0%, rgba(202, 170, 152, 0.15) 40%, transparent 80%)`,
-          }}
-          aria-hidden="true"
-        />
 
         {/* Top 4-Tone Accent Ribbon */}
         <div className="absolute top-0 inset-x-0 h-1 flex">

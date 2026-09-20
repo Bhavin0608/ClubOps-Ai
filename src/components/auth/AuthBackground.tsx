@@ -57,10 +57,6 @@ export function AuthBackground() {
       <div className="absolute bottom-8 right-8 text-[#9A8678]/40 font-mono text-xs select-none">
         + CLUBOPS.STUDIO
       </div>
-
-      {/* Architectural Concentric Thin Orbit Lines */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[840px] h-[840px] rounded-full border border-[#CAAA98]/30 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1120px] h-[1120px] rounded-full border border-[#9A8678]/20 pointer-events-none" />
     </div>
   );
 }

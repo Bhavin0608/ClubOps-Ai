@@ -110,8 +110,8 @@ export default function EventsPage() {
           onLogout={handleLogout}
         />
 
-        {/* Hero Headline & Telemetry Badges */}
-        <EventsHero totalEvents={events.length} />
+        {/* Hero Headline */}
+        <EventsHero />
 
         {/* Events Grid / State Views */}
         {loading ? (
