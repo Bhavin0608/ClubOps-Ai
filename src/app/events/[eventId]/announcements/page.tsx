@@ -27,21 +27,35 @@ export default function AnnouncementsPage(props: {
 
   useEffect(() => {
     fetchAnnouncements();
+
+    const handleActionResolved = () => {
+      fetchAnnouncements();
+    };
+
+    window.addEventListener("clubops:action-resolved", handleActionResolved);
+    return () => {
+      window.removeEventListener("clubops:action-resolved", handleActionResolved);
+    };
   }, [eventId]);
 
-  if (loading) return <LoadingState message="Loading announcements..." />;
+  if (loading) return <LoadingState message="Loading communication channels & broadcasts..." />;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CAAA98]/40">
-        <div>
-          <h2 className="text-lg font-bold text-[#202940] flex items-center gap-2">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#CAAA98]/30">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#CAAA98]/25 border border-[#CAAA98]/50 flex items-center justify-center text-[#202940] shadow-xs flex-shrink-0">
             <Megaphone className="w-5 h-5 text-[#202940]" />
-            Announcements & Broadcasts
-          </h2>
-          <p className="text-xs text-[#9A8678]">
-            Draft announcements with AI, review in inert drafts, and publish with one-click WhatsApp copy
-          </p>
+          </div>
+          <div>
+            <h2 className="text-lg font-extrabold text-[#202940] tracking-tight">
+              Announcements & Broadcasts
+            </h2>
+            <p className="text-xs text-[#4B4038] font-medium">
+              Synthesize broadcast announcements with AI, review inert drafts & copy formatted for WhatsApp & Slack
+            </p>
+          </div>
         </div>
 
         <AnnouncementDraftModal
