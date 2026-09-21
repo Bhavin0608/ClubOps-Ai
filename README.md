@@ -8,6 +8,7 @@ ClubOps AI is a full-stack AI-powered event operations platform for **collegiate
 
 It converts scattered event information from meetings, documents, and operational data into **structured tasks, risk alerts, and actionable recommendations** while keeping humans in control of every important system change.
 
+Live Link : [ClubOps AI](https://clubops-ai-562f.onrender.com/)
 ---
 
 ## 🚨 Problem
